@@ -1,0 +1,14 @@
+BasedOnStyle: Google
+IndentWidth: 4
+UseTab: false
+AlignConsecutiveDeclarations: true
+#InsertNewlineAtEOF: true
+ColumnLimit: 120
+#BreakBeforeBinaryOperators: All
+#AlignOperands: true
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortBlocksOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+InsertBraces: true
+
