@@ -1,0 +1,30 @@
+#pragma once
+#include <netdb.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/epoll.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#include <Client.hpp>
+#include <iostream>
+#include <map>
+#include <string>
+
+#define MAX_EVENTS 20
+
+class Server {
+   private:
+    const int             port;
+    const std::string     password;
+    std::map<int, Client> clients;
+
+   public:
+    Server(const int port, const std::string password);
+    Server(const Server& other);
+    Server& operator=(const Server& other);
+    ~Server();
+    void run();
+};
