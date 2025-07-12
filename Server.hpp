@@ -8,10 +8,11 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <Client.hpp>
 #include <iostream>
 #include <map>
 #include <string>
+
+#include "Client.hpp"
 
 #define MAX_EVENTS 20
 
@@ -19,6 +20,7 @@ class Server {
    private:
     const int             port;
     const std::string     password;
+    // the key is the filediscriptor on which the client is connected
     std::map<int, Client> clients;
 
    public:

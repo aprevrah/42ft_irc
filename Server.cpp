@@ -67,6 +67,7 @@ void Server::run() {
                     perror("epoll_ctl failed");
                     exit(1);
                 }
+                clients[client_fd] = Client(client_fd);
                 std::cout << "connection accepted: " << client_fd << std::endl;
             }
             // data from existing connection
@@ -81,7 +82,7 @@ void Server::run() {
                         break;
                     }
                     std::cout << "data received: '" << read_buffer << "'" << std::endl;
-                    write(events[i].data.fd, read_buffer, sizeof(read_buffer));
+                    clients.at(events[i].data.fd).add_to_buffer(std::string(read_buffer));
                 }
             }
         }

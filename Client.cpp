@@ -1,11 +1,17 @@
 #include "Client.hpp"
 
 #include <string.h>
+#include <cstring>
 
 #include <iostream>
+#include <bsd/string.h>
+
+Client::Client() {
+    std::cout << "Client: Default constructor called" << std::endl;
+}
 
 Client::Client(int fd) : fd(fd) {
-    std::cout << "Client: Default constructor called" << std::endl;
+    std::cout << "Client: Parameter constructor called" << std::endl;
 }
 
 Client::Client(const Client& other) : fd(other.fd) {
@@ -22,8 +28,20 @@ Client::~Client() {
     std::cout << "Client: Destructor called" << std::endl;
 }
 
-void Client::add_to_buffer(char* new_bytes) {
-    strlcat(message_buffer, new_bytes, MESSAGE_BUFFER_SIZE + 1);
+void Client::add_to_buffer(std::string new_bytes) {
+    message_buffer += new_bytes;
+    
+    // Check for complete messages (ending with CRLF)
+    size_t crlf_pos;
+    while ((crlf_pos = message_buffer.find("\r\n")) != std::string::npos) {
+        // Extract complete message (without CRLF)
+        std::string complete_message = message_buffer.substr(0, crlf_pos);
+        std::cout << "Complete message: " << complete_message << std::endl;
+        
+        // TODO: Process the complete IRC message here
+        
+        message_buffer.erase(0, crlf_pos + 2);
+    }
 }
 
 int Client::get_fd() const {
