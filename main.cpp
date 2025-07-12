@@ -1,5 +1,6 @@
 #include <netdb.h>
 #include <netinet/in.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/epoll.h>
@@ -11,6 +12,9 @@
 #define MAX_EVENTS 20
 
 int main(int argc, char **argv) {
+    (void)argc;
+    (void)argv;
+
     // TODO: check all return values from system calls
     int server_socket_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
     if (server_socket_fd == -1) {
