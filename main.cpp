@@ -1,8 +1,10 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include <iostream>
 
@@ -58,7 +60,18 @@ int main(int argc, char **argv) {
             }
             // data from existing connection
             else {
-                std::cout << "data received" << std::endl;
+                char    read_buffer[32];
+                ssize_t bytes_read = 1;
+                while (bytes_read > 0) {
+                    memset(read_buffer, 0, sizeof(read_buffer));
+                    bytes_read = read(events[i].data.fd, read_buffer, sizeof(read_buffer) - 1);
+                    if (bytes_read == -1) {
+                        perror("read");
+                        break;
+                    }
+                    std::cout << "data received: '" << read_buffer << "'" << std::endl;
+                    write(events[i].data.fd, read_buffer, sizeof(read_buffer));
+                }
             }
         }
     }
