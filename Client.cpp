@@ -16,11 +16,15 @@ Client::Client(int fd) : fd(fd) {
 
 Client::Client(const Client& other) : fd(other.fd) {
     std::cout << "Client: Copy constructor called" << std::endl;
+    this->nickname = other.nickname;
+    this->message_buffer = other.message_buffer;
 }
 
 Client& Client::operator=(const Client& other) {
-    (void)other;
     std::cout << "Client: Copy assignment operator called" << std::endl;
+    this->fd = other.fd;
+    this->nickname = other.nickname;
+    this->message_buffer = other.message_buffer;
     return *this;
 }
 
