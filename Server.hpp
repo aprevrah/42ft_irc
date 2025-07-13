@@ -1,4 +1,5 @@
 #pragma once
+#include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -18,8 +19,8 @@
 
 class Server {
    private:
-    const int             port;
-    const std::string     password;
+    const int         port;
+    const std::string password;
     // the key is the filediscriptor on which the client is connected
     std::map<int, Client> clients;
 

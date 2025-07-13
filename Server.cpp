@@ -60,6 +60,7 @@ void Server::run() {
                     perror("accept failed");
                     continue;
                 }
+                fcntl(client_fd, F_SETFL, O_NONBLOCK);
                 struct epoll_event event;
                 event.events = EPOLLIN | EPOLLET;
                 event.data.fd = client_fd;
