@@ -45,7 +45,7 @@ void Client::add_to_buffer(std::string new_bytes) {
         try {
             Command cmd(complete_message);
             std::cout << cmd << std::endl;
-        } catch (std::runtime_error e) {
+        } catch (std::exception &e) {
             std::cout << "Error while parsing command: " << e.what() << std::endl;
         }
 

@@ -12,29 +12,25 @@ Command::Command(std::string command_str) {
     size_t current_pos = 0;
     size_t next_space = 0;
     // <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
-    if (command_str.size() == 0) {
-        throw std::runtime_error("Empty String");
-    }
-    if (command_str.at(0) == ':' /*TODO: handle out_of_range exception*/) { // <prefix>
+    if (command_str.size() != 0 && command_str.at(0) == ':') { // <prefix>
         current_pos = 1;
-        next_space = command_str.find(' ', current_pos);  // TODO: what happens if there is no space?
+        next_space = command_str.find(' ', current_pos);
         prefix = command_str.substr(current_pos, next_space - current_pos);
         current_pos = command_str.find_first_not_of(' ', next_space);
     }
 
-    next_space = command_str.find(' ', current_pos);  // TODO: what happens if there is no space?
+    next_space = command_str.find(' ', current_pos);
     command = command_str.substr(current_pos, next_space - current_pos);
     if (command.size() == 0) {
         throw std::runtime_error("Empty Command");
     }
     current_pos = command_str.find_first_not_of(' ', next_space);
-    // std::cout << "cmd: " << command << std::endl;
 
     // <params>   ::= <SPACE> [ ':' <trailing> | <middle> <params> ]
     // <middle>   ::= <Any *non-empty* sequence of octets not including SPACE
     //                or NUL or CR or LF, the first of which may not be ':'>
     while (current_pos != std::string::npos) {
-        next_space = command_str.find(' ', current_pos);  // TODO: what happens if there is no sapce?
+        next_space = command_str.find(' ', current_pos);
         if (command_str.size() > current_pos && command_str.at(current_pos) == ':') { // <trailing>
             current_pos++;
             next_space = std::string::npos;
