@@ -2,6 +2,7 @@
 #include <string>
 #include <string.h>
 #include <cstring>
+#include "Command.hpp"
 #define MESSAGE_BUFFER_SIZE 512
 
 class Client {

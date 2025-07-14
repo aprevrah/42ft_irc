@@ -1,10 +1,10 @@
 #include "Client.hpp"
 
-#include <string.h>
-#include <cstring>
-
-#include <iostream>
 #include <bsd/string.h>
+#include <string.h>
+
+#include <cstring>
+#include <iostream>
 
 Client::Client() {
     std::cout << "Client: Default constructor called" << std::endl;
@@ -34,16 +34,21 @@ Client::~Client() {
 
 void Client::add_to_buffer(std::string new_bytes) {
     message_buffer += new_bytes;
-    
+
     // Check for complete messages (ending with CRLF)
     size_t crlf_pos;
     while ((crlf_pos = message_buffer.find("\r\n")) != std::string::npos) {
         // Extract complete message (without CRLF)
         std::string complete_message = message_buffer.substr(0, crlf_pos);
         std::cout << "Complete message: " << complete_message << std::endl;
-        
-        // TODO: Process the complete IRC message here
-        
+
+        try {
+            Command cmd(complete_message);
+            std::cout << cmd << std::endl;
+        } catch (std::runtime_error e) {
+            std::cout << "Error while parsing command: " << e.what() << std::endl;
+        }
+
         message_buffer.erase(0, crlf_pos + 2);
     }
 }

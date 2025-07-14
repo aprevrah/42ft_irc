@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <ostream>
 
 class Command {
    private:
@@ -14,4 +15,8 @@ class Command {
     Command(const Command& other);
     Command& operator=(const Command& other);
     ~Command();
+    
+    friend std::ostream& operator<<(std::ostream& os, const Command& cmd);
 };
+
+
