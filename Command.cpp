@@ -35,7 +35,8 @@ Command::Command(std::string command_str) {
     //                or NUL or CR or LF, the first of which may not be ':'>
     while (current_pos != std::string::npos) {
         next_space = command_str.find(' ', current_pos);  // TODO: what happens if there is no sapce?
-        if (command_str.size() > current_pos + 1 && command_str.at(current_pos + 1) == ':') { // <trailing>
+        if (command_str.size() > current_pos && command_str.at(current_pos) == ':') { // <trailing>
+            current_pos++;
             next_space = std::string::npos;
         }
         parameters.push_back(command_str.substr(current_pos, next_space - current_pos));
@@ -69,7 +70,7 @@ std::ostream& operator<<(std::ostream& os, const Command& cmd) {
         os << " parameters: ";
         for (size_t i = 0; i < cmd.parameters.size(); ++i) {
             if (i > 0) os << ", ";
-            os << cmd.parameters[i];
+            os << "'" << cmd.parameters[i] << "'";
         }
     }
     return os;
