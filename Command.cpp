@@ -7,18 +7,22 @@ Command::Command() {
     std::cout << "Command: Default constructor called" << std::endl;
 }
 
+// <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
+// this function expects that the CR LF is not in the string anymore
 Command::Command(std::string command_str) {
     std::cout << "Command: Parameter constructor called" << std::endl;
     size_t current_pos = 0;
     size_t next_space = 0;
-    // <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
-    if (command_str.size() != 0 && command_str.at(0) == ':') { // <prefix>
+
+    // <prefix>
+    if (command_str.size() != 0 && command_str.at(0) == ':') {
         current_pos = 1;
         next_space = command_str.find(' ', current_pos);
         prefix = command_str.substr(current_pos, next_space - current_pos);
         current_pos = command_str.find_first_not_of(' ', next_space);
     }
 
+    // <command>
     next_space = command_str.find(' ', current_pos);
     command = command_str.substr(current_pos, next_space - current_pos);
     if (command.size() == 0) {
@@ -31,7 +35,7 @@ Command::Command(std::string command_str) {
     //                or NUL or CR or LF, the first of which may not be ':'>
     while (current_pos != std::string::npos) {
         next_space = command_str.find(' ', current_pos);
-        if (command_str.size() > current_pos && command_str.at(current_pos) == ':') { // <trailing>
+        if (command_str.size() > current_pos && command_str.at(current_pos) == ':') {  // <trailing>
             current_pos++;
             next_space = std::string::npos;
         }
@@ -65,7 +69,9 @@ std::ostream& operator<<(std::ostream& os, const Command& cmd) {
     if (!cmd.parameters.empty()) {
         os << " parameters: ";
         for (size_t i = 0; i < cmd.parameters.size(); ++i) {
-            if (i > 0) os << ", ";
+            if (i > 0) {
+                os << ", ";
+            }
             os << "'" << cmd.parameters[i] << "'";
         }
     }
