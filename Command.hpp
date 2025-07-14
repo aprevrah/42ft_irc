@@ -5,11 +5,11 @@
 
 class Command {
    private:
-    std::string              command;
-    std::string              prefix;
-    std::vector<std::string> parameters;
 
    public:
+    std::string              prefix;
+    std::string              command;
+    std::vector<std::string> parameters;
     Command();
     Command(std::string command_str);
     Command(const Command& other);

@@ -1,20 +1,25 @@
 #pragma once
-#include <string>
 #include <string.h>
+
 #include <cstring>
+#include <string>
+
 #include "Command.hpp"
+
+class Server; // Forward declaration
+
 #define MESSAGE_BUFFER_SIZE 512
 
 class Client {
    private:
+    Server*     server;
     int         fd;
-    // char        message_buffer[MESSAGE_BUFFER_SIZE + 1];
     std::string message_buffer;
     std::string nickname;
 
    public:
     Client();
-    Client(int fd);
+    Client(int fd, Server* server);
     Client(const Client& other);
     Client& operator=(const Client& other);
     ~Client();

@@ -68,7 +68,7 @@ void Server::run() {
                     perror("epoll_ctl failed");
                     exit(1);
                 }
-                clients[client_fd] = Client(client_fd);
+                clients[client_fd] = Client(client_fd, this);
                 std::cout << "connection accepted: " << client_fd << std::endl;
             }
             // data from existing connection

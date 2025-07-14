@@ -1,4 +1,5 @@
 #include "Client.hpp"
+#include "Server.hpp"
 
 #include <bsd/string.h>
 #include <string.h>
@@ -10,11 +11,11 @@ Client::Client() {
     std::cout << "Client: Default constructor called" << std::endl;
 }
 
-Client::Client(int fd) : fd(fd) {
+Client::Client(int fd, Server* server) :  server(server), fd(fd) {
     std::cout << "Client: Parameter constructor called" << std::endl;
 }
 
-Client::Client(const Client& other) : fd(other.fd) {
+Client::Client(const Client& other) : server(other.server), fd(other.fd) {
     std::cout << "Client: Copy constructor called" << std::endl;
     this->nickname = other.nickname;
     this->message_buffer = other.message_buffer;
@@ -23,6 +24,7 @@ Client::Client(const Client& other) : fd(other.fd) {
 Client& Client::operator=(const Client& other) {
     std::cout << "Client: Copy assignment operator called" << std::endl;
     this->fd = other.fd;
+    this->server = other.server;
     this->nickname = other.nickname;
     this->message_buffer = other.message_buffer;
     return *this;
@@ -45,6 +47,10 @@ void Client::add_to_buffer(std::string new_bytes) {
         try {
             Command cmd(complete_message);
             std::cout << cmd << std::endl;
+            // TODO: handle commands in a sperate function
+            if (cmd.command == "CAP" && cmd.parameters.size() > 0 && cmd.parameters.front() == "LS") {
+                write(fd, "CAP * LS :\r\n", 13);
+            }
         } catch (std::exception &e) {
             std::cout << "Error while parsing command: " << e.what() << std::endl;
         }
