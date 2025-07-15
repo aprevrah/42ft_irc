@@ -26,7 +26,6 @@ class Command {
         void cmd_nick(Server* server);
         void cmd_user(Server* server);
    public:
-//     Command();
     Command(std::string command_str, Client &client);
     Command(const Command& other);
     Command& operator=(const Command& other);

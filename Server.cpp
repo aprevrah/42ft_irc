@@ -3,23 +3,16 @@
 
 #include <iostream>
 
-Server::Server(const int port, const std::string password): port(port), password(password) {
-    std::cout << "Server: Default constructor called" << std::endl;
-}
+Server::Server(const int port, const std::string password) : port(port), password(password) {}
 
-Server::Server(const Server& other): port(other.port), password(other.password) {
-    std::cout << "Server: Copy constructor called" << std::endl;
-}
+Server::Server(const Server& other) : port(other.port), password(other.password) {}
 
 Server& Server::operator=(const Server& other) {
-    (void) other;
-    std::cout << "Server: Copy assignment operator called" << std::endl;
+    (void)other;
     return *this;
 }
 
-Server::~Server() {
-    std::cout << "Server: Destructor called" << std::endl;
-}
+Server::~Server() {}
 
 bool Server::is_correct_password(std::string input) {
     return password == input;
@@ -37,7 +30,7 @@ void Server::run() {
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(this->port);
 
-    bind(server_socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    bind(server_socket_fd, (struct sockaddr*)&server_addr, sizeof(server_addr));
     listen(server_socket_fd, 100);  // TODO: rethink about 100
     int                epoll_fd = epoll_create1(0);
     struct epoll_event event;
@@ -59,7 +52,7 @@ void Server::run() {
             if (events[i].data.fd == server_socket_fd) {
                 struct sockaddr_in incoming_addr;
                 socklen_t          addr_len = sizeof(incoming_addr);
-                int                client_fd = accept(server_socket_fd, (struct sockaddr *)&incoming_addr, &addr_len);
+                int                client_fd = accept(server_socket_fd, (struct sockaddr*)&incoming_addr, &addr_len);
                 if (client_fd == -1) {
                     perror("accept failed");
                     continue;
@@ -90,7 +83,6 @@ void Server::run() {
                     clients.at(events[i].data.fd).add_to_buffer(std::string(read_buffer));
                 }
             }
-
         }
     }
 }

@@ -5,14 +5,9 @@
 
 #include "Server.hpp"
 
-// Command::Command() {
-//     std::cout << "Command: Default constructor called" << std::endl;
-// }
-
 // <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
 // this function expects that the CR LF is not in the string anymore
 Command::Command(std::string command_str, Client& client) : client(client) {
-    std::cout << "Command: Parameter constructor called" << std::endl;
     size_t current_pos = 0;
     size_t next_space = 0;
 
@@ -47,21 +42,17 @@ Command::Command(std::string command_str, Client& client) : client(client) {
 }
 
 Command::Command(const Command& other) : client(other.client) {
-    std::cout << "Command: Copy constructor called" << std::endl;
     *this = other;
 }
 
 Command& Command::operator=(const Command& other) {
-    std::cout << "Command: Copy assignment operator called" << std::endl;
     this->prefix = other.prefix;
     this->command = other.command;
     this->parameters = other.parameters;
     return *this;
 }
 
-Command::~Command() {
-    std::cout << "Command: Destructor called" << std::endl;
-}
+Command::~Command() {}
 
 std::ostream& operator<<(std::ostream& os, const Command& cmd) {
     os << "Command: " << cmd.command;
@@ -92,16 +83,15 @@ void Command::cmd_nick(Server* server) {
     std::string prev_nick = client.get_nickname().empty() ? "*" : client.get_nickname();
     if (parameters.size() > 0) {
         if (server->is_nick_available(parameters.front())) {
-             client.set_nickname(parameters.front());
+            client.set_nickname(parameters.front());
         } else {
             client.send_response(ERR_NICKNAMEINUSE + std::string("<client> <nick> :Nickname is already in use"));
         }
-        
+
         // std::string response = "TestResponse: Nick set to " + client.get_nickname();
-        // client.send_response(response); //TODO: Check if nick is valid and error responses 
+        // client.send_response(response); //TODO: Check if nick is valid and error responses
         client.try_register();
     } else {
-        
         client.send_response(ERR_NONICKNAMEGIVEN " " + prev_nick + " :No nickname given");
     }
 }
@@ -112,7 +102,7 @@ void Command::cmd_pass(Server* server) {
         std::string response(ERR_NEEDMOREPARAMS);
         response += std::string(" PASS :Not enough parameters\r\n");
         write(client.get_fd(), response.c_str(), response.length());
-        return ;
+        return;
     }
     // check if already registered --> ERR_ALREADYREGISTRED
     client.correct_password = server->is_correct_password(parameters.at(0));
@@ -121,10 +111,10 @@ void Command::cmd_pass(Server* server) {
 
 // Parameters: <username> <hostname> <servername> <realname>
 void Command::cmd_user(Server* server) {
-    (void) server;
+    (void)server;
     if (parameters.size() < 4) {
         // TODO: send Error response
-        return ;
+        return;
     }
     client.set_username(parameters.at(0));
     // ignore other paramters for now
@@ -141,9 +131,9 @@ void Command::execute(Server* server) {
 
     std::cout << "Executing command." << std::endl;
     if (cmd_functions.find(this->command) != cmd_functions.end()) {
-        std::cout << "Command found: " << this->command << std::endl; 
+        std::cout << "Command found: " << this->command << std::endl;
         (this->*cmd_functions[this->command])(server);
     } else {
-        std::cout << "Command not found: " << this->command << std::endl; 
+        std::cout << "Command not found: " << this->command << std::endl;
     }
 }
