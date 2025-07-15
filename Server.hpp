@@ -32,4 +32,5 @@ class Server {
     Server& operator=(const Server& other);
     ~Server();
     void run();
+    bool is_correct_password(std::string password);
 };

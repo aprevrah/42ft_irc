@@ -87,12 +87,29 @@ void Command::cmd_cap(Server* server) {
     }
 }
 
+void Command::cmd_pass(Server* server) {
+    if (parameters.size() < 1) {
+        std::cout << "Not enough parameters" << std::endl;
+        std::string response(ERR_NEEDMOREPARAMS);
+        response += std::string(" PASS :Not enough parameters\r\n");
+        write(client.get_fd(), response.c_str(), response.length());
+        return ;
+    }
+    client.correct_password = server->is_correct_password(parameters.at(0));
+    std::cout << "client.correct_password: " << client.correct_password << std::endl;
+}
+
 void Command::execute(Server* server) {
     (void)server;
     std::map<std::string, void (Command::*)(Server*)> cmd_functions;
     cmd_functions["CAP"] = &Command::cmd_cap;
+    cmd_functions["PASS"] = &Command::cmd_pass;
 
+    std::cout << "Executing command." << std::endl;
     if (cmd_functions.find(this->command) != cmd_functions.end()) {
+        std::cout << "Command found: " << this->command << std::endl; 
         (this->*cmd_functions[this->command])(server);
+    } else {
+        std::cout << "Command not found: " << this->command << std::endl; 
     }
 }

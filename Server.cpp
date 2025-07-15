@@ -21,6 +21,10 @@ Server::~Server() {
     std::cout << "Server: Destructor called" << std::endl;
 }
 
+bool Server::is_correct_password(std::string input) {
+    return password == input;
+}
+
 void Server::run() {
     // TODO: check all return values from system calls
     int server_socket_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);

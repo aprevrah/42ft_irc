@@ -18,6 +18,7 @@ class Client {
     std::string nickname;
 
    public:
+    bool correct_password;
     Client();
     Client(int fd, Server* server);
     Client(const Client& other);
