@@ -7,6 +7,8 @@
 #include <cstring>
 #include <iostream>
 
+class Command;
+
 Client::Client() {
     std::cout << "Client: Default constructor called" << std::endl;
 }
@@ -45,12 +47,9 @@ void Client::add_to_buffer(std::string new_bytes) {
         std::cout << "Complete message: " << complete_message << std::endl;
 
         try {
-            Command cmd(complete_message);
+            Command cmd(complete_message, *this);
             std::cout << cmd << std::endl;
-            // TODO: handle commands in a sperate function
-            if (cmd.command == "CAP" && cmd.parameters.size() > 0 && cmd.parameters.front() == "LS") {
-                write(fd, "CAP * LS :\r\n", 13);
-            }
+            cmd.execute(this->server);
         } catch (std::exception &e) {
             std::cout << "Error while parsing command: " << e.what() << std::endl;
         }

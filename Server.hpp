@@ -17,6 +17,8 @@
 
 #define MAX_EVENTS 20
 
+class Client;
+
 class Server {
    private:
     const int         port;

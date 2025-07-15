@@ -3,13 +3,15 @@
 #include <iostream>
 #include <stdexcept>
 
-Command::Command() {
-    std::cout << "Command: Default constructor called" << std::endl;
-}
+#include "Server.hpp"
+
+// Command::Command() {
+//     std::cout << "Command: Default constructor called" << std::endl;
+// }
 
 // <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
 // this function expects that the CR LF is not in the string anymore
-Command::Command(std::string command_str) {
+Command::Command(std::string command_str, Client& client) : client(client) {
     std::cout << "Command: Parameter constructor called" << std::endl;
     size_t current_pos = 0;
     size_t next_space = 0;
@@ -44,7 +46,7 @@ Command::Command(std::string command_str) {
     }
 }
 
-Command::Command(const Command& other) {
+Command::Command(const Command& other) : client(other.client) {
     std::cout << "Command: Copy constructor called" << std::endl;
     *this = other;
 }
@@ -76,4 +78,21 @@ std::ostream& operator<<(std::ostream& os, const Command& cmd) {
         }
     }
     return os;
+}
+
+void Command::cmd_cap(Server* server) {
+    (void)server;
+    if (parameters.size() > 0 && parameters.front() == "LS") {
+        write(client.get_fd(), "CAP * LS :\r\n", 13);
+    }
+}
+
+void Command::execute(Server* server) {
+    (void)server;
+    std::map<std::string, void (Command::*)(Server*)> cmd_functions;
+    cmd_functions["CAP"] = &Command::cmd_cap;
+
+    if (cmd_functions.find(this->command) != cmd_functions.end()) {
+        (this->*cmd_functions[this->command])(server);
+    }
 }

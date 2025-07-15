@@ -86,6 +86,7 @@ void Server::run() {
                     clients.at(events[i].data.fd).add_to_buffer(std::string(read_buffer));
                 }
             }
+            
         }
     }
 }
