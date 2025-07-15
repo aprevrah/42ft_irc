@@ -25,6 +25,23 @@ function test {
         return 0
     else
         echo "✗ TEST FAILED"
+        echo ""
+        echo "=== DIFF ==="
+        # Create temporary files for diff
+        local temp_expected=$(mktemp)
+        local temp_actual=$(mktemp)
+        
+        # Write responses to temporary files
+        echo -n "$expected_response" > "$temp_expected"
+        echo -n "$actual_response" > "$temp_actual"
+        
+        # Show unified diff with context
+        diff -u "$temp_expected" "$temp_actual" --label "Expected" --label "Actual" || true
+        
+        # Clean up temporary files
+        rm -f "$temp_expected" "$temp_actual"
+        echo "============"
+        echo ""
         return 1
     fi
 }
@@ -46,13 +63,11 @@ fi
 echo "IRC server started with PID: $IRCSERV_PID"
 
 # Run the tests
-echo "Running tests..."
-test "Hello World" "Hello World"
-test \
-"long long string aaaaaaaaaaaaaaaaaaaaaaaaaaaa
-bbbbbbbbbbbbbbbbbbbbbbbb cccccccccccccccc ddddddddddddddeeeeeeeeeeffff" \
-"long long string aaaaaaaaaaaaaaaaaaaaaaaaaaaa
-bbbbbbbbbbbbbbbbbbbbbbbb cccccccccccccccc ddddddddddddddeeeeeeeeeeffff"
+WELCOME=$'001 tester :Welcome to the Internet Relay Networktester!\r
+002 tester :Your host is our.server42.at.\r
+003  :This server was created today.\r\n'
+
+test $'PASS password\r\nNICK tester\r\nUSER username 2 3 4\r\n' "$WELCOME"
 
 # Check if the server is still running after tests
 if ! kill -0 $IRCSERV_PID 2>/dev/null; then
