@@ -13,7 +13,7 @@ Client::Client() {
     std::cout << "Client: Default constructor called" << std::endl;
 }
 
-Client::Client(int fd, Server* server) :  server(server), fd(fd) {
+Client::Client(int fd, Server* server) :  server(server), fd(fd), registered(false) {
     std::cout << "Client: Parameter constructor called" << std::endl;
 }
 
@@ -58,6 +58,22 @@ void Client::add_to_buffer(std::string new_bytes) {
     }
 }
 
+bool Client::try_register() {
+    if(nickname.empty() || username.empty()) {
+        return false;
+    }
+    if (!correct_password) {
+        write(fd, ERR_PASSWDMISMATCH "\r\n", 6);
+        // disconnect ?
+        return false;
+    }
+    registered = true;
+    send_response("001 " + nickname + " :Welcome to the Internet Relay Network" + nickname + "!");
+    send_response("002 " + nickname + " :Your host is our.server42.at.");
+    send_response("003 " " :This server was created today.");
+    return true;
+}
+
 int Client::get_fd() const {
     return fd;
 }
@@ -74,4 +90,8 @@ void Client::send_response(const std::string& response) {
     std::string formatted_response = response;
     formatted_response += "\r\n";
     write(this->fd, formatted_response.c_str(), formatted_response.length());
+}
+void Client::set_username(std::string new_name) {
+    // TODO: validate username
+    username = new_name;
 }

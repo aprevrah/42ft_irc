@@ -10,6 +10,7 @@
 
 
 #define ERR_NEEDMOREPARAMS "461"
+#define ERR_PASSWDMISMATCH "464"
 
 class Server;
 class Client;
@@ -23,6 +24,7 @@ class Command {
         void cmd_cap(Server* server);
         void cmd_pass(Server* server);
         void cmd_nick(Server* server);
+        void cmd_user(Server* server);
    public:
 //     Command();
     Command(std::string command_str, Client &client);

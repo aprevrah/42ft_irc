@@ -16,6 +16,8 @@ class Client {
     int         fd;
     std::string message_buffer;
     std::string nickname;
+    std::string username;
+    bool        registered;
 
    public:
     bool correct_password;
@@ -31,4 +33,7 @@ class Client {
 
     const std::string &get_nickname() const;
     void set_nickname(const std::string &nickname);
+    bool try_register();
+    bool is_registered();
+    void set_username(std::string);
 };

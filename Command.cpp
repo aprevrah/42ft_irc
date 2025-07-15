@@ -97,9 +97,9 @@ void Command::cmd_nick(Server* server) {
             client.send_response(ERR_NICKNAMEINUSE + std::string("<client> <nick> :Nickname is already in use"));
         }
         
-        std::string response = "TestResponse: Nick set to " + client.get_nickname();
-
-        client.send_response(response); //TODO: Check if nick is valid and error responses 
+        // std::string response = "TestResponse: Nick set to " + client.get_nickname();
+        // client.send_response(response); //TODO: Check if nick is valid and error responses 
+        client.try_register();
     } else {
         
         client.send_response(ERR_NONICKNAMEGIVEN " " + prev_nick + " :No nickname given");
@@ -114,8 +114,21 @@ void Command::cmd_pass(Server* server) {
         write(client.get_fd(), response.c_str(), response.length());
         return ;
     }
+    // check if already registered --> ERR_ALREADYREGISTRED
     client.correct_password = server->is_correct_password(parameters.at(0));
     std::cout << "client.correct_password: " << client.correct_password << std::endl;
+}
+
+// Parameters: <username> <hostname> <servername> <realname>
+void Command::cmd_user(Server* server) {
+    (void) server;
+    if (parameters.size() < 4) {
+        // TODO: send Error response
+        return ;
+    }
+    client.set_username(parameters.at(0));
+    // ignore other paramters for now
+    client.try_register();
 }
 
 void Command::execute(Server* server) {
@@ -124,6 +137,7 @@ void Command::execute(Server* server) {
     cmd_functions["CAP"] = &Command::cmd_cap;
     cmd_functions["PASS"] = &Command::cmd_pass;
     cmd_functions["NICK"] = &Command::cmd_nick;
+    cmd_functions["USER"] = &Command::cmd_user;
 
     std::cout << "Executing command." << std::endl;
     if (cmd_functions.find(this->command) != cmd_functions.end()) {
