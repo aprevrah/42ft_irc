@@ -33,4 +33,6 @@ class Server {
     ~Server();
     void run();
     bool is_correct_password(std::string password);
+
+    bool is_nick_available(const std::string nick);
 };

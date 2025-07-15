@@ -83,7 +83,26 @@ std::ostream& operator<<(std::ostream& os, const Command& cmd) {
 void Command::cmd_cap(Server* server) {
     (void)server;
     if (parameters.size() > 0 && parameters.front() == "LS") {
-        write(client.get_fd(), "CAP * LS :\r\n", 13);
+        client.send_response("CAP * LS :");
+    }
+}
+
+void Command::cmd_nick(Server* server) {
+    (void)server;
+    std::string prev_nick = client.get_nickname().empty() ? "*" : client.get_nickname();
+    if (parameters.size() > 0) {
+        if (server->is_nick_available(parameters.front())) {
+             client.set_nickname(parameters.front());
+        } else {
+            client.send_response(ERR_NICKNAMEINUSE + std::string("<client> <nick> :Nickname is already in use"));
+        }
+        
+        std::string response = "TestResponse: Nick set to " + client.get_nickname();
+
+        client.send_response(response); //TODO: Check if nick is valid and error responses 
+    } else {
+        
+        client.send_response(ERR_NONICKNAMEGIVEN " " + prev_nick + " :No nickname given");
     }
 }
 
@@ -104,6 +123,7 @@ void Command::execute(Server* server) {
     std::map<std::string, void (Command::*)(Server*)> cmd_functions;
     cmd_functions["CAP"] = &Command::cmd_cap;
     cmd_functions["PASS"] = &Command::cmd_pass;
+    cmd_functions["NICK"] = &Command::cmd_nick;
 
     std::cout << "Executing command." << std::endl;
     if (cmd_functions.find(this->command) != cmd_functions.end()) {

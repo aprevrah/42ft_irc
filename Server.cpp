@@ -90,8 +90,16 @@ void Server::run() {
                     clients.at(events[i].data.fd).add_to_buffer(std::string(read_buffer));
                 }
             }
-            
+
         }
     }
 }
 
+bool Server::is_nick_available(const std::string nick) {
+    for (std::map<int, Client>::const_iterator it = clients.begin(); it != clients.end(); ++it) {
+        if (it->second.get_nickname() == nick) {
+            return false;
+        }
+    }
+    return true;
+}

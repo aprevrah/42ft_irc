@@ -26,4 +26,9 @@ class Client {
     ~Client();
     void add_to_buffer(std::string new_bytes);
     int  get_fd() const;
+    
+    void send_response(const std::string& response);
+
+    const std::string &get_nickname() const;
+    void set_nickname(const std::string &nickname);
 };

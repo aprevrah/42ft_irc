@@ -61,3 +61,17 @@ void Client::add_to_buffer(std::string new_bytes) {
 int Client::get_fd() const {
     return fd;
 }
+
+const std::string &Client::get_nickname() const {
+    return this->nickname;
+}
+
+void Client::set_nickname(const std::string &nickname) {
+    this->nickname = nickname;
+}
+
+void Client::send_response(const std::string& response) {
+    std::string formatted_response = response;
+    formatted_response += "\r\n";
+    write(this->fd, formatted_response.c_str(), formatted_response.length());
+}
