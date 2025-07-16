@@ -91,6 +91,7 @@ test $'PASS password\r\nNICK tester\r\nUSER username 2 3 4\r\n' "$WELCOME"
 test $'PASS password\r\nNICK tester\r\nUSER username 2 3 4\r\n' $'433 * tester :Nickname is already in use\r'
 test $'PASS wrong_password\r\nNICK tester565\r\nUSER username 2 3 4\r\n' $'464 tester565 :Password incorrect\r'
 test $'PING :hello\r\n' $'PONG AmazingServer hello\r'
+test $'CAP LS 302\r\n' $'CAP * LS :\r'
 
 # Check if the server is still running after tests
 if ! kill -0 $IRCSERV_PID 2>/dev/null; then
