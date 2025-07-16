@@ -12,7 +12,8 @@ Server& Server::operator=(const Server& other) {
     return *this;
 }
 
-Server::~Server() {}
+Server::~Server() {
+}
 
 bool Server::is_correct_password(std::string input) {
     return password == input;

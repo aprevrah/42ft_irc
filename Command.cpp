@@ -131,6 +131,44 @@ void Command::cmd_ping(Server* server) {
     }
 }
 
+void Command::cmd_join(Server* server) { //TODO: join multiple channels
+    if (parameters.size() > 0) {
+        std::string &chan_name = parameters.front();
+        for (size_t i = 0; i < server->channels.size(); i++) {
+            if (chan_name == server->channels[i].get_name()) {
+                //join existing channel 
+                server->channels[i].join_client(&client);
+                client.send_response("JOIN succsess"); //TODO: correct msg
+                return;
+            }
+        }
+        //join new chan
+        server->channels.push_back(Chan(chan_name));
+        server->channels.back().join_client(&client, true);
+        client.send_response("JOIN created new channel success");
+    }
+}
+
+void Command::cmd_part(Server* server) {
+    if (parameters.size() > 0) {
+        std::string &chan_name = parameters.front();
+        for (size_t i = 0; i < server->channels.size(); i++) {
+            if (chan_name == server->channels[i].get_name()) {
+                if (server->channels[i].is_client_in_channel(&client)){
+                    server->channels[i].leave_client(&client);
+                    //TODO: Remove empty channels, ChannelManager class?
+                    client.send_response("PART succsess"); //TODO: correct msg
+                    return;
+                } else {
+                    client.send_response("PART ur not in that chan");
+                    return;
+                }
+            }
+        }
+        client.send_response("PART no such channel");
+    }
+}
+
 void Command::execute(Server* server) {
     (void)server;
     std::map<std::string, void (Command::*)(Server*)> cmd_functions;
@@ -139,6 +177,8 @@ void Command::execute(Server* server) {
     cmd_functions["NICK"] = &Command::cmd_nick;
     cmd_functions["USER"] = &Command::cmd_user;
     cmd_functions["PING"] = &Command::cmd_ping;
+    cmd_functions["JOIN"] = &Command::cmd_join;
+    cmd_functions["PART"] = &Command::cmd_part;
 
     if (cmd_functions.find(this->command) != cmd_functions.end()) {
         std::cout << "Command found: " << this->command << std::endl;

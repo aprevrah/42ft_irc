@@ -14,6 +14,7 @@
 #include <string>
 
 #include "Client.hpp"
+#include "Chan.hpp"
 
 #define SERVER_NAME "AmazingServer"
 #define MAX_EVENTS 20
@@ -26,8 +27,10 @@ class Server {
     const std::string password;
     // the key is the filediscriptor on which the client is connected
     std::map<int, Client> clients;
+    
 
    public:
+    std::vector<Chan> channels; //TODO: put this somewhere better
     Server(const int port, const std::string password);
     Server(const Server& other);
     Server& operator=(const Server& other);

@@ -1,5 +1,5 @@
 NAME = ircserv
-SRCS = main.cpp Server.cpp Client.cpp Command.cpp
+SRCS = main.cpp Server.cpp Client.cpp Command.cpp Chan.cpp
 
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
