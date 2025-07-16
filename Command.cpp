@@ -85,7 +85,7 @@ void Command::cmd_nick(Server* server) {
         if (server->is_nick_available(parameters.front())) {
             client.set_nickname(parameters.front());
         } else {
-            client.send_response(ERR_NICKNAMEINUSE + std::string("<client> <nick> :Nickname is already in use"));
+            client.send_response(ERR_NICKNAMEINUSE" * " + parameters.front() + " :Nickname is already in use");
         }
 
         // std::string response = "TestResponse: Nick set to " + client.get_nickname();
@@ -140,11 +140,10 @@ void Command::execute(Server* server) {
     cmd_functions["USER"] = &Command::cmd_user;
     cmd_functions["PING"] = &Command::cmd_ping;
 
-    std::cout << "Executing command." << std::endl;
     if (cmd_functions.find(this->command) != cmd_functions.end()) {
         std::cout << "Command found: " << this->command << std::endl;
         (this->*cmd_functions[this->command])(server);
     } else {
-        std::cout << "Command not found: " << this->command << std::endl;
+        std::cout << "Command not found: '" << this->command << "'" << std::endl;
     }
 }

@@ -22,13 +22,14 @@ function test {
     echo "========================"
     echo
     echo "Testing: '$string_to_send'"
-    echo "Expected: '$expected_response'"
     
     # Send the string to ircserv and capture the response
     # Use timeout and -w flag to ensure connection closes properly
-    local actual_response=$(echo "$string_to_send" | timeout 2 nc -w 2 localhost 6667 | tr -d '\0')
+    local actual_response=$(echo "$string_to_send" | timeout 1 nc -w 2 localhost 6667 | tr -d '\0')
     
-    echo "Actual: '$actual_response'"
+    echo ""
+    echo -e "Expected: '$expected_response\n'"
+    echo -e "Actual: '$actual_response\n'"
     
     # Compare the responses
     if [ "$actual_response" = "$expected_response" ]; then
@@ -39,26 +40,8 @@ function test {
         echo -e "${RED}✗ TEST FAILED${NC}"
         ((TESTS_FAILED++))
         echo ""
-        echo "=== DIFF ==="
-        # Create temporary files for diff
-        local temp_expected=$(mktemp)
-        local temp_actual=$(mktemp)
-        
-        # Write responses to temporary files
-        echo -n "$expected_response" > "$temp_expected"
-        echo -n "$actual_response" > "$temp_actual"
-        
-        # Show unified diff with context
-        diff -u "$temp_expected" "$temp_actual" --label "Expected" --label "Actual" || true
-        
-        # Clean up temporary files
-        rm -f "$temp_expected" "$temp_actual"
-        echo "============"
-        echo ""
         return 1
     fi
-    echo "========================"
-    echo
 }
 
 # Function to display test report and exit appropriately
@@ -105,6 +88,9 @@ WELCOME=$'001 tester :Welcome to the Internet Relay Networktester!\r
 
 test $'PASS\r\n' $'461 PASS :Not enough parameters\r'
 test $'PASS password\r\nNICK tester\r\nUSER username 2 3 4\r\n' "$WELCOME"
+test $'PASS password\r\nNICK tester\r\nUSER username 2 3 4\r\n' $'433 * tester :Nickname is already in use\r'
+test $'PASS wrong_password\r\nNICK tester565\r\nUSER username 2 3 4\r\n' $'464 tester565 :Password incorrect\r'
+test $'PING :hello\r\n' $'PONG AmazingServer hello\r'
 
 # Check if the server is still running after tests
 if ! kill -0 $IRCSERV_PID 2>/dev/null; then

@@ -55,7 +55,7 @@ bool Client::try_register() {
         return false;
     }
     if (!correct_password) {
-        write(fd, ERR_PASSWDMISMATCH "\r\n", 6);
+        send_response(ERR_PASSWDMISMATCH" " + nickname + " :Password incorrect");
         // disconnect ?
         return false;
     }
