@@ -121,6 +121,16 @@ void Command::cmd_user(Server* server) {
     client.try_register();
 }
 
+void Command::cmd_ping(Server* server) {
+    (void)server;
+    if (parameters.size() > 0) {
+        std::string &token = parameters.back();
+        client.send_response("PONG " SERVER_NAME " " + token); //TODO: server name var?
+    } else {
+        client.send_response(ERR_NEEDMOREPARAMS);
+    }
+}
+
 void Command::execute(Server* server) {
     (void)server;
     std::map<std::string, void (Command::*)(Server*)> cmd_functions;
@@ -128,6 +138,7 @@ void Command::execute(Server* server) {
     cmd_functions["PASS"] = &Command::cmd_pass;
     cmd_functions["NICK"] = &Command::cmd_nick;
     cmd_functions["USER"] = &Command::cmd_user;
+    cmd_functions["PING"] = &Command::cmd_ping;
 
     std::cout << "Executing command." << std::endl;
     if (cmd_functions.find(this->command) != cmd_functions.end()) {

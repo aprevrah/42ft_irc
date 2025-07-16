@@ -1,6 +1,5 @@
 #include "Client.hpp"
 
-#include <bsd/string.h>
 #include <string.h>
 
 #include <cstring>

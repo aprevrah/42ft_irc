@@ -25,6 +25,7 @@ class Command {
         void cmd_pass(Server* server);
         void cmd_nick(Server* server);
         void cmd_user(Server* server);
+        void cmd_ping(Server* server);
    public:
     Command(std::string command_str, Client &client);
     Command(const Command& other);

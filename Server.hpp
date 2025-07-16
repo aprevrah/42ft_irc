@@ -15,6 +15,7 @@
 
 #include "Client.hpp"
 
+#define SERVER_NAME "AmazingServer"
 #define MAX_EVENTS 20
 
 class Client;
