@@ -1,5 +1,14 @@
 #! /bin/bash
 
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Test counters
+TESTS_PASSED=0
+TESTS_FAILED=0
+
 # test STRING_TO_SEND EXPECTED_RESPONSE
 function test {
     local string_to_send="$1"
@@ -10,21 +19,25 @@ function test {
         return 1
     fi
     
-    echo "Testing: $string_to_send"
-    echo "Expected: $expected_response"
+    echo "========================"
+    echo
+    echo "Testing: '$string_to_send'"
+    echo "Expected: '$expected_response'"
     
     # Send the string to ircserv and capture the response
     # Use timeout and -w flag to ensure connection closes properly
     local actual_response=$(echo "$string_to_send" | timeout 2 nc -w 2 localhost 6667 | tr -d '\0')
     
-    echo "Actual: $actual_response"
+    echo "Actual: '$actual_response'"
     
     # Compare the responses
     if [ "$actual_response" = "$expected_response" ]; then
-        echo "✓ TEST PASSED"
+        echo -e "${GREEN}✓ TEST PASSED${NC}"
+        ((TESTS_PASSED++))
         return 0
     else
-        echo "✗ TEST FAILED"
+        echo -e "${RED}✗ TEST FAILED${NC}"
+        ((TESTS_FAILED++))
         echo ""
         echo "=== DIFF ==="
         # Create temporary files for diff
@@ -43,6 +56,29 @@ function test {
         echo "============"
         echo ""
         return 1
+    fi
+    echo "========================"
+    echo
+}
+
+# Function to display test report and exit appropriately
+function report_and_exit {
+    local total_tests=$((TESTS_PASSED + TESTS_FAILED))
+    
+    echo "========================"
+    echo "TEST REPORT"
+    echo "========================"
+    echo "Total tests: $total_tests"
+    echo -e "Passed: ${GREEN}$TESTS_PASSED${NC}"
+    echo -e "Failed: ${RED}$TESTS_FAILED${NC}"
+    echo "========================"
+    
+    if [ $TESTS_FAILED -gt 0 ]; then
+        echo -e "${RED}Some tests failed!${NC}"
+        exit 1
+    else
+        echo -e "${GREEN}All tests passed!${NC}"
+        exit 0
     fi
 }
 
@@ -65,8 +101,9 @@ echo "IRC server started with PID: $IRCSERV_PID"
 # Run the tests
 WELCOME=$'001 tester :Welcome to the Internet Relay Networktester!\r
 002 tester :Your host is our.server42.at.\r
-003  :This server was created today.\r\n'
+003  :This server was created today.\r'
 
+test $'PASS\r\n' $'461 PASS :Not enough parameters\r'
 test $'PASS password\r\nNICK tester\r\nUSER username 2 3 4\r\n' "$WELCOME"
 
 # Check if the server is still running after tests
@@ -89,3 +126,7 @@ if kill -0 $IRCSERV_PID 2>/dev/null; then
 fi
 
 echo "IRC server terminated successfully"
+echo
+
+# Display final report and exit
+report_and_exit
