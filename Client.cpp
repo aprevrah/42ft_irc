@@ -55,7 +55,7 @@ bool Client::try_register() {
         return false;
     }
     if (!correct_password) {
-        send_response(ERR_PASSWDMISMATCH" " + nickname + " :Password incorrect");
+        send_numeric_response(ERR_PASSWDMISMATCH, std::string(), "Password incorrect");
         // disconnect ?
         return false;
     }
@@ -85,6 +85,18 @@ void Client::send_response(const std::string& response) {
     formatted_response += "\r\n";
     write(this->fd, formatted_response.c_str(), formatted_response.length());
 }
+
+// TODO: accept params ase multiple strings: maybe with array, vector or vargs
+void Client::send_numeric_response(const unsigned int numeric, std::string params, const std::string& message) {
+    std::string response = to_string(numeric);
+    response += nickname.empty() ? " *" : (" " + nickname);
+    if (!params.empty()) {
+        response += " " + params;
+    }
+    response += " :" + message;
+    send_response(response);
+}
+
 void Client::set_username(std::string new_name) {
     // TODO: validate username
     username = new_name;

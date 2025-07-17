@@ -2,22 +2,8 @@
 
 #include <iostream>
 #include <stdexcept>
-#include <sstream>
 
 #include "Server.hpp"
-
-// Helper function for C++98 compatibility (std::to_string not available)
-std::string to_string(int value) {
-    std::ostringstream oss;
-    oss << value;
-    return oss.str();
-}
-
-std::string to_string(unsigned int value) {
-    std::ostringstream oss;
-    oss << value;
-    return oss.str();
-}
 
 // <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
 // this function expects that the CR LF is not in the string anymore
@@ -94,28 +80,25 @@ void Command::cmd_cap(Server* server) {
 
 void Command::cmd_nick(Server* server) {
     (void)server;
-    std::string prev_nick = client.get_nickname().empty() ? "*" : client.get_nickname();
     if (parameters.size() > 0) {
         if (server->is_nick_available(parameters.front())) {
             client.set_nickname(parameters.front());
         } else {
-            client.send_response(ERR_NICKNAMEINUSE" * " + parameters.front() + " :Nickname is already in use");
+            client.send_numeric_response(ERR_NICKNAMEINUSE, parameters.front(), "Nickname is already in use");
         }
 
         // std::string response = "TestResponse: Nick set to " + client.get_nickname();
         // client.send_response(response); //TODO: Check if nick is valid and error responses
         client.try_register();
     } else {
-        client.send_response(ERR_NONICKNAMEGIVEN " " + prev_nick + " :No nickname given");
+        client.send_numeric_response(ERR_NONICKNAMEGIVEN, std::string(), "No nickname given");
     }
 }
 
 void Command::cmd_pass(Server* server) {
     if (parameters.size() < 1) {
         std::cout << "Not enough parameters" << std::endl;
-        std::string response(ERR_NEEDMOREPARAMS);
-        response += std::string(" PASS :Not enough parameters\r\n");
-        write(client.get_fd(), response.c_str(), response.length());
+        client.send_numeric_response(ERR_NEEDMOREPARAMS, "PASS", "Not enough parameters");
         return;
     }
     // check if already registered --> ERR_ALREADYREGISTRED
@@ -141,7 +124,7 @@ void Command::cmd_ping(Server* server) {
         std::string &token = parameters.back();
         client.send_response("PONG " SERVER_NAME " " + token); //TODO: server name var?
     } else {
-        client.send_response(ERR_NEEDMOREPARAMS);
+        client.send_response(to_string(ERR_NEEDMOREPARAMS));
     }
 }
 
@@ -160,7 +143,9 @@ void Command::cmd_join(Server* server) { //TODO: join multiple channels
 }
 
 void Command::cmd_part(Server* server) {
-    if (parameters.size() > 0) {
+    if (parameters.size() == 0) {
+        client.send_response(to_string(ERR_NEEDMOREPARAMS));
+    }
         std::string &chan_name = parameters.front();
         try {
             server->chan_man.leave_channel(&client, chan_name);
@@ -170,7 +155,6 @@ void Command::cmd_part(Server* server) {
         } catch (std::exception& e) {
             client.send_response(std::string("PART fail: ") + e.what());
         }
-    }
 }
 
 void Command::execute(Server* server) {

@@ -5,8 +5,9 @@
 #include <string>
 
 #include "Command.hpp"
+#include "to_string.hpp"
 
-class Server; // Forward declaration
+class Server;  // Forward declaration
 
 #define MESSAGE_BUFFER_SIZE 512
 
@@ -28,12 +29,23 @@ class Client {
     ~Client();
     void add_to_buffer(std::string new_bytes);
     int  get_fd() const;
-    
+
     void send_response(const std::string& response);
 
-    const std::string &get_nickname() const;
-    void set_nickname(const std::string &nickname);
-    bool try_register();
-    bool is_registered();
-    void set_username(std::string);
+    /**
+     * @brief Sends a numeric reply to the client.
+     *
+     * The client's nickname is automatically added as the first parameter.
+     *
+     * @param numeric The 3-digit numeric reply code.
+     * @param params Space-separated parameters for the reply.
+     * @param message The trailing part of the message, which will be prefixed with a colon.
+     */
+    void send_numeric_response(const unsigned int numeric, std::string params, const std::string& message);
+
+    const std::string& get_nickname() const;
+    void               set_nickname(const std::string& nickname);
+    bool               try_register();
+    bool               is_registered();
+    void               set_username(std::string);
 };

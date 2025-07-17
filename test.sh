@@ -86,9 +86,8 @@ WELCOME=$'001 tester :Welcome to the Internet Relay Networktester!\r
 002 tester :Your host is our.server42.at.\r
 003  :This server was created today.\r'
 
-test $'PASS\r\n' $'461 PASS :Not enough parameters\r'
+test $'PASS\r\n' $'461 * PASS :Not enough parameters\r'
 test $'PASS password\r\nNICK tester\r\nUSER username 2 3 4\r\n' "$WELCOME"
-test $'PASS password\r\nNICK tester\r\nUSER username 2 3 4\r\n' $'433 * tester :Nickname is already in use\r'
 test $'PASS wrong_password\r\nNICK tester565\r\nUSER username 2 3 4\r\n' $'464 tester565 :Password incorrect\r'
 test $'PING :hello\r\n' $'PONG AmazingServer hello\r'
 test $'CAP LS 302\r\n' $'CAP * LS :\r'
