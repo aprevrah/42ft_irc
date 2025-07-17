@@ -1,4 +1,3 @@
-
 #include "Server.hpp"
 
 #include <cerrno>
@@ -41,17 +40,25 @@ void Server::handle_new_connection() {
     std::cout << "connection accepted: " << client_fd << std::endl;
 }
 void Server::handle_received_data(int client_fd) {
-    char    read_buffer[2];
+    char    read_buffer[32];
     ssize_t bytes_read = 1;
     while (bytes_read > 0) {
         memset(read_buffer, 0, sizeof(read_buffer));
         bytes_read = read(client_fd, read_buffer, sizeof(read_buffer) - 1);
-        std::cout << "bytes_read: " << bytes_read << std::endl;
         if (bytes_read <= 0) {
-            // EAGAIN or EWOULDBLOCK are expected when there is currently nothing left to read, so no error message in
-            // this case
+            // EAGAIN or EWOULDBLOCK are expected when there is currently nothing left to read, but the connection is
+            // still connected. So no error message in this case.
             if (bytes_read == -1 && errno != EAGAIN && errno != EWOULDBLOCK) {
                 perror("read");
+            }
+            // if read returns 0, it means that the client has disconnected
+            if (bytes_read == 0) {
+                std::cout << "Client " << client_fd << " disconnected" << std::endl;
+                epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+                close(client_fd);
+                clients.erase(client_fd);
+                // TODO: leave channels and notify other clients?
+                return;
             }
             break;
         }
