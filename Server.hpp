@@ -4,7 +4,7 @@
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <cstring>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -24,11 +24,15 @@ class Client;
 
 class Server {
    private:
+    int               server_socket_fd;
+    int               epoll_fd;
     const int         port;
     const std::string password;
     // the key is the filediscriptor on which the client is connected
     std::map<int, Client> clients;
-    
+
+    void handle_new_connection();
+    void handle_received_data(int fd);
 
    public:
     ChannelManager chan_man;
