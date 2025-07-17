@@ -1,6 +1,7 @@
 
 #include "Server.hpp"
 
+#include <cerrno>
 #include <iostream>
 
 Server::Server(const int port, const std::string password) : port(port), password(password) {}
@@ -46,10 +47,12 @@ void Server::handle_received_data(int client_fd) {
         memset(read_buffer, 0, sizeof(read_buffer));
         bytes_read = read(client_fd, read_buffer, sizeof(read_buffer) - 1);
         std::cout << "bytes_read: " << bytes_read << std::endl;
-        if (bytes_read == -1) {
-            perror("read");
-            break;
-        } else if (bytes_read <= 0) {
+        if (bytes_read <= 0) {
+            // EAGAIN or EWOULDBLOCK are expected when there is currently nothing left to read, so no error message in
+            // this case
+            if (bytes_read == -1 && errno != EAGAIN && errno != EWOULDBLOCK) {
+                perror("read");
+            }
             break;
         }
         std::cout << "data received: '" << read_buffer << "'" << std::endl;

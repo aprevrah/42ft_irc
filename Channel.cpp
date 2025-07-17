@@ -1,6 +1,7 @@
 #include "Channel.hpp"
 
 Channel::Channel() : name(""), invite_only(false), topic_needs_op(false), user_limit(0) {
+    (void) topic_needs_op;
 }
 
 Channel::Channel(const std::string &name) : name(name), invite_only(false), topic_needs_op(false), user_limit(0) {
