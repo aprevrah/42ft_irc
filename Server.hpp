@@ -14,7 +14,8 @@
 #include <string>
 
 #include "Client.hpp"
-#include "Chan.hpp"
+#include "Channel.hpp"
+#include "ChannelManager.hpp"
 
 #define SERVER_NAME "AmazingServer"
 #define MAX_EVENTS 20
@@ -30,7 +31,7 @@ class Server {
     
 
    public:
-    std::vector<Chan> channels; //TODO: put this somewhere better
+    ChannelManager chan_man;
     Server(const int port, const std::string password);
     Server(const Server& other);
     Server& operator=(const Server& other);

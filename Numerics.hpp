@@ -1,0 +1,6 @@
+
+//Errors
+#define ERR_CHANNELISFULL   471
+#define ERR_NOTONCHANNEL    442
+#define ERR_NOSUCHCHANNEL   403
+//Replies

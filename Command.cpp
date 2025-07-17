@@ -2,8 +2,22 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <sstream>
 
 #include "Server.hpp"
+
+// Helper function for C++98 compatibility (std::to_string not available)
+std::string to_string(int value) {
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
+
+std::string to_string(unsigned int value) {
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
 
 // <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
 // this function expects that the CR LF is not in the string anymore
@@ -132,40 +146,30 @@ void Command::cmd_ping(Server* server) {
 }
 
 void Command::cmd_join(Server* server) { //TODO: join multiple channels
-    if (parameters.size() > 0) {
+   if (parameters.size() > 0) {
         std::string &chan_name = parameters.front();
-        for (size_t i = 0; i < server->channels.size(); i++) {
-            if (chan_name == server->channels[i].get_name()) {
-                //join existing channel 
-                server->channels[i].join_client(&client);
-                client.send_response("JOIN succsess"); //TODO: correct msg
-                return;
-            }
+        try {
+            server->chan_man.join_channel(&client, chan_name);
+            client.send_response("JOIN " + chan_name); //TODO: correct msg
+        } catch (IRCException& e) {
+            client.send_response(to_string(e.get_irc_numeric()) + std::string(" ") + e.what()); //TODO: correct msg
+        } catch (std::exception& e) {
+            client.send_response(std::string("PART fail: ") + e.what());
         }
-        //join new chan
-        server->channels.push_back(Chan(chan_name));
-        server->channels.back().join_client(&client, true);
-        client.send_response("JOIN created new channel success");
     }
 }
 
 void Command::cmd_part(Server* server) {
     if (parameters.size() > 0) {
         std::string &chan_name = parameters.front();
-        for (size_t i = 0; i < server->channels.size(); i++) {
-            if (chan_name == server->channels[i].get_name()) {
-                if (server->channels[i].is_client_in_channel(&client)){
-                    server->channels[i].leave_client(&client);
-                    //TODO: Remove empty channels, ChannelManager class?
-                    client.send_response("PART succsess"); //TODO: correct msg
-                    return;
-                } else {
-                    client.send_response("PART ur not in that chan");
-                    return;
-                }
-            }
+        try {
+            server->chan_man.leave_channel(&client, chan_name);
+            client.send_response("PART " + chan_name); //TODO: correct msg
+        } catch (IRCException& e) {
+            client.send_response(to_string(e.get_irc_numeric()) + std::string(" ") + e.what()); //TODO: correct msg
+        } catch (std::exception& e) {
+            client.send_response(std::string("PART fail: ") + e.what());
         }
-        client.send_response("PART no such channel");
     }
 }
 
