@@ -145,7 +145,7 @@ void Command::cmd_join(Server* server) { //TODO: join multiple channels
 void Command::cmd_part(Server* server) {
     if (parameters.size() == 0) {
         client.send_response(to_string(ERR_NEEDMOREPARAMS));
-    }
+    } else {
         std::string &chan_name = parameters.front();
         try {
             server->chan_man.leave_channel(&client, chan_name);
@@ -154,6 +154,30 @@ void Command::cmd_part(Server* server) {
             client.send_response(to_string(e.get_irc_numeric()) + std::string(" ") + e.what()); //TODO: correct msg
         } catch (std::exception& e) {
             client.send_response(std::string("PART fail: ") + e.what());
+        }
+    }
+}
+
+void Command::cmd_privmsg(Server* server) {
+    if (parameters.size() != 2) {
+        client.send_response(to_string(ERR_NEEDMOREPARAMS));
+        return;
+    }
+        std::vector<std::string> targets = split_string(parameters[0], ',');
+        std::string& message = parameters[1];
+
+        for (size_t i = 0; i < targets.size(); i++) {
+            std::string& target = targets[i];
+            if (target.empty()) continue;
+            std::cout << "target: " << target << "\n";
+            Client* target_client = server->get_client_by_nick(target);
+            if (!target_client) {
+                client.send_numeric_response(ERR_NOSUCHNICK, target, "No such nick/channel");
+                continue;
+            }
+             // Build the private message
+            std::string privmsg = ":" + client.get_nickname() + " PRIVMSG " + target + " :" + message;
+            target_client->send_response(privmsg);
         }
 }
 
@@ -167,6 +191,8 @@ void Command::execute(Server* server) {
     cmd_functions["PING"] = &Command::cmd_ping;
     cmd_functions["JOIN"] = &Command::cmd_join;
     cmd_functions["PART"] = &Command::cmd_part;
+    cmd_functions["PRIVMSG"] = &Command::cmd_privmsg;
+    
 
     if (cmd_functions.find(this->command) != cmd_functions.end()) {
         std::cout << "Command found: " << this->command << std::endl;

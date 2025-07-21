@@ -24,6 +24,7 @@ class Command {
     void                     cmd_ping(Server* server);
     void                     cmd_join(Server* server);
     void                     cmd_part(Server* server);
+    void                     cmd_privmsg(Server* server);
 
    public:
     Command(std::string command_str, Client& client);

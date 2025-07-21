@@ -44,4 +44,5 @@ class Server {
     bool is_correct_password(std::string password);
 
     bool is_nick_available(const std::string nick);
+    Client* get_client_by_nick(const std::string nick);
 };
