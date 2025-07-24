@@ -35,6 +35,7 @@ void Channel::leave_client(Client* client) {
     
     std::map<Client*, bool>::iterator it = clients.find(client);
     if (it != clients.end()) {
+        // TODO: should the other clients in the channel be notified?
         clients.erase(it);
     } else 
         throw IRCException("Not on that channel", ERR_NOTONCHANNEL);

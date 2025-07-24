@@ -18,4 +18,9 @@ private:
     void join_channel(Client* client, const std::string& channel_name);
     void leave_channel(Client* client, const std::string& channel_name);
     bool channel_exists(const std::string& name);
+
+    /**
+     * @brief This is for when a client quits/disconnets from the server
+     */
+    void quit_all_channels(Client &client, std::string reaso);
 };

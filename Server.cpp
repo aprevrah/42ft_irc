@@ -19,15 +19,14 @@ bool Server::is_correct_password(std::string input) {
 }
 
 void Server::disconnect_client(int client_fd, std::string reason) {
-    std::cout << "Client " << client_fd << " disconnected" << std::endl;
-    // TODO: send QUIT message to all other clients that are in the same channels
+    chan_man.quit_all_channels(clients[client_fd], reason);
     // I couldn't use the send_numeric_response() here, because ERROR is not an int
     // TODO: maybe we should generalize send_numeric_response() and accept a string as cmd
     clients[client_fd].send_response("ERROR :" + reason);
+    clients.erase(client_fd);
     epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
     close(client_fd);
-    clients.erase(client_fd);
-    // TODO: leave channels and notify other clients?
+    std::cout << "Client " << client_fd << " disconnected" << std::endl;
 }
 
 void Server::handle_new_connection() {
