@@ -14,6 +14,10 @@ Channel* ChannelManager::find_channel_by_name(const std::string& name) {
     return NULL;
 }
 
+bool ChannelManager::channel_exists(const std::string& name) {
+    return find_channel_by_name(name) != NULL;
+}
+
 void ChannelManager::join_channel(Client* client, const std::string& channel_name) {
     Channel* channel = find_channel_by_name(channel_name);
     if (channel) {

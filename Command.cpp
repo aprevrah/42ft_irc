@@ -170,6 +170,12 @@ void Command::cmd_privmsg(Server* server) {
             std::string& target = targets[i];
             if (target.empty()) continue;
             std::cout << "target: " << target << "\n";
+            if (target.at(0) == '#' && server->chan_man.channel_exists(target)) {
+                std::string privmsg = ":" + client.get_nickname() + " PRIVMSG " + target + " :" + message;
+                server->chan_man.find_channel_by_name(target)->broadcast(privmsg, &client);
+                return;
+            }
+
             Client* target_client = server->get_client_by_nick(target);
             if (!target_client) {
                 client.send_numeric_response(ERR_NOSUCHNICK, target, "No such nick/channel");

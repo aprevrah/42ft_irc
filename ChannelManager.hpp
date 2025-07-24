@@ -10,9 +10,9 @@ class Channel;
 class ChannelManager {
 private:
     std::vector<Channel> channels;  //std::vector<Chan*> use heap?
-    Channel* find_channel_by_name(const std::string& name);
     
-public:
+    public:
+    Channel* find_channel_by_name(const std::string& name);
     ChannelManager();
     ~ChannelManager();
     void join_channel(Client* client, const std::string& channel_name);

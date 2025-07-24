@@ -6,11 +6,12 @@
 #include "IRCException.hpp"
 #include "Numerics.hpp"
 
+
 class Client;
 
 class Channel {
    private:
-    // I'm guessing the bool value stands for wether the client is an operator?
+    // bool is true if the client is operator
     std::map<Client*, bool> clients;
     std::string             name;
     std::string             topic;
@@ -35,4 +36,5 @@ class Channel {
     const std::string& get_name() const;
     void               set_topic(const std::string& new_topic);
     const std::string& get_topic() const;
+    void               broadcast(const std::string &msg, Client *sender) const;
 };

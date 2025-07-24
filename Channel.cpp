@@ -1,4 +1,5 @@
 #include "Channel.hpp"
+#include "Client.hpp"
 
 Channel::Channel() : name(""), invite_only(false), topic_needs_op(false), user_limit(0) {
     (void) topic_needs_op;
@@ -75,4 +76,13 @@ size_t Channel::nbr_of_clients() const {
 
 bool Channel::is_full() const {
     return clients.size() >= user_limit;
+}
+
+void Channel::broadcast(const std::string &msg, Client *sender) const {
+    for (std::map<Client *, bool>::const_iterator it = clients.begin(); it != clients.end(); it++) {
+        Client * client = it->first;
+        if (client && client != sender) {
+            client->send_response(msg);
+        }
+    }
 }
