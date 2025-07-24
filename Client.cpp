@@ -11,10 +11,11 @@ class Command;
 
 Client::Client() {}
 
-Client::Client(int fd, Server* server) : server(server), fd(fd), registered(false) {}
+Client::Client(int fd, Server* server) : server(server), fd(fd), hostname("localhost"),  registered(false) {}
 
 Client::Client(const Client& other) : server(other.server), fd(other.fd) {
     this->nickname = other.nickname;
+    this->hostname = other.hostname;
     this->message_buffer = other.message_buffer;
 }
 
@@ -22,6 +23,7 @@ Client& Client::operator=(const Client& other) {
     this->fd = other.fd;
     this->server = other.server;
     this->nickname = other.nickname;
+    this->hostname = other.hostname;
     this->message_buffer = other.message_buffer;
     return *this;
 }
@@ -100,4 +102,12 @@ void Client::send_numeric_response(const unsigned int numeric, std::string param
 void Client::set_username(std::string new_name) {
     // TODO: validate username
     username = new_name;
+}
+
+const std::string& Client::get_hostname() const {
+    return hostname;
+}
+
+std::string Client::get_prefix() const {
+        return ":" + nickname + "!" + username + "@" + hostname;
 }

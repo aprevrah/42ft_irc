@@ -133,7 +133,12 @@ void Command::cmd_join(Server* server) { //TODO: join multiple channels
         std::string &chan_name = parameters.front();
         try {
             server->chan_man.join_channel(&client, chan_name);
-            client.send_response("JOIN " + chan_name); //TODO: correct msg
+            
+            std::string join_msg = client.get_prefix() + " JOIN " + chan_name;
+            Channel* channel = server->chan_man.find_channel_by_name(chan_name);
+            if (channel) {
+                channel->broadcast(join_msg, NULL);
+            }
         } catch (IRCException& e) {
             client.send_response(to_string(e.get_irc_numeric()) + std::string(" ") + e.what()); //TODO: correct msg
         } catch (std::exception& e) {
@@ -149,7 +154,12 @@ void Command::cmd_part(Server* server) {
         std::string &chan_name = parameters.front();
         try {
             server->chan_man.leave_channel(&client, chan_name);
-            client.send_response("PART " + chan_name); //TODO: correct msg
+
+            Channel* channel = server->chan_man.find_channel_by_name(chan_name);
+            if (channel) {
+                std::string part_msg = client.get_prefix() + " PART " + chan_name;
+                channel->broadcast(part_msg, NULL);
+            }
         } catch (IRCException& e) {
             client.send_response(to_string(e.get_irc_numeric()) + std::string(" ") + e.what()); //TODO: correct msg
         } catch (std::exception& e) {
@@ -171,9 +181,9 @@ void Command::cmd_privmsg(Server* server) {
             if (target.empty()) continue;
             std::cout << "target: " << target << "\n";
             if (target.at(0) == '#' && server->chan_man.channel_exists(target)) {
-                std::string privmsg = ":" + client.get_nickname() + " PRIVMSG " + target + " :" + message;
+                std::string privmsg = client.get_prefix() + " PRIVMSG " + target + " :" + message;
                 server->chan_man.find_channel_by_name(target)->broadcast(privmsg, &client);
-                return;
+                continue;
             }
 
             Client* target_client = server->get_client_by_nick(target);
@@ -182,7 +192,7 @@ void Command::cmd_privmsg(Server* server) {
                 continue;
             }
              // Build the private message
-            std::string privmsg = ":" + client.get_nickname() + " PRIVMSG " + target + " :" + message;
+            std::string privmsg = client.get_prefix() + " PRIVMSG " + target + " :" + message;
             target_client->send_response(privmsg);
         }
 }

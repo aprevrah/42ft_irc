@@ -18,6 +18,7 @@ class Client {
     std::string message_buffer;
     std::string nickname;
     std::string username;
+    std::string hostname;
     bool        registered;
 
    public:
@@ -44,8 +45,10 @@ class Client {
     void send_numeric_response(const unsigned int numeric, std::string params, const std::string& message);
 
     const std::string& get_nickname() const;
+    const std::string& get_hostname() const;
     void               set_nickname(const std::string& nickname);
     bool               try_register();
     bool               is_registered();
     void               set_username(std::string);
+    std::string        get_prefix() const;
 };
