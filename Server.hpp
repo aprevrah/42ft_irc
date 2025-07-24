@@ -42,6 +42,7 @@ class Server {
     ~Server();
     void run();
     bool is_correct_password(std::string password);
+    void disconnect_client(int client_fd, std::string reason);
 
     bool is_nick_available(const std::string nick);
     Client* get_client_by_nick(const std::string nick);

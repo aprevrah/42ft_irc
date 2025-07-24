@@ -168,8 +168,14 @@ void Command::cmd_part(Server* server) {
     }
 }
 
+void Command::cmd_quit(Server* server) {
+    std::string reason = parameters.size() > 0 ? parameters.back() : "quit";
+    server->disconnect_client(client.get_fd(), reason);
+}
+
 void Command::cmd_privmsg(Server* server) {
     if (parameters.size() != 2) {
+        //TODO: what about to many params? is NEEDMOREPARAMS still the correct message?
         client.send_response(to_string(ERR_NEEDMOREPARAMS));
         return;
     }
@@ -206,6 +212,7 @@ void Command::execute(Server* server) {
     cmd_functions["USER"] = &Command::cmd_user;
     cmd_functions["PING"] = &Command::cmd_ping;
     cmd_functions["JOIN"] = &Command::cmd_join;
+    cmd_functions["QUIT"] = &Command::cmd_quit;
     cmd_functions["PART"] = &Command::cmd_part;
     cmd_functions["PRIVMSG"] = &Command::cmd_privmsg;
     

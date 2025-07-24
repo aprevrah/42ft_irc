@@ -18,6 +18,18 @@ bool Server::is_correct_password(std::string input) {
     return password == input;
 }
 
+void Server::disconnect_client(int client_fd, std::string reason) {
+    std::cout << "Client " << client_fd << " disconnected" << std::endl;
+    // TODO: send QUIT message to all other clients that are in the same channels
+    // I couldn't use the send_numeric_response() here, because ERROR is not an int
+    // TODO: maybe we should generalize send_numeric_response() and accept a string as cmd
+    clients[client_fd].send_response("ERROR :" + reason);
+    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+    close(client_fd);
+    clients.erase(client_fd);
+    // TODO: leave channels and notify other clients?
+}
+
 void Server::handle_new_connection() {
     // TODO: test what happens if two new connection come at the same time
     // (to test this you probaly have to insert a wait into the loop)
@@ -53,11 +65,7 @@ void Server::handle_received_data(int client_fd) {
             }
             // if read returns 0, it means that the client has disconnected
             if (bytes_read == 0) {
-                std::cout << "Client " << client_fd << " disconnected" << std::endl;
-                epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-                close(client_fd);
-                clients.erase(client_fd);
-                // TODO: leave channels and notify other clients?
+                disconnect_client(client_fd, "client closed the connection");
                 return;
             }
             break;
