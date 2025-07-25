@@ -11,7 +11,7 @@ class Command;
 
 Client::Client() {}
 
-Client::Client(int fd, Server* server) : server(server), fd(fd), hostname("localhost"),  registered(false) {}
+Client::Client(int fd, Server* server) : server(server), fd(fd), hostname("localhost"), registered(false) {}
 
 Client::Client(const Client& other) : server(other.server), fd(other.fd) {
     this->nickname = other.nickname;
@@ -38,14 +38,13 @@ void Client::add_to_buffer(std::string new_bytes) {
     while ((crlf_pos = message_buffer.find("\r\n")) != std::string::npos) {
         // Extract complete message (without CRLF)
         std::string complete_message = message_buffer.substr(0, crlf_pos);
-        std::cout << "Complete message: " << complete_message << std::endl;
+        log_msg(INFO, "Message received: " + complete_message);
 
         try {
             Command cmd(complete_message, *this);
-            std::cout << cmd << std::endl;
             cmd.execute(this->server);
         } catch (std::exception& e) {
-            std::cout << "Error while parsing command: " << e.what() << std::endl;
+            log_msg(ERROR, "Error while parsing command: " + std::string(e.what()));
         }
 
         message_buffer.erase(0, crlf_pos + 2);
@@ -62,11 +61,9 @@ bool Client::try_register() {
         return false;
     }
     registered = true;
-    send_response("001 " + nickname + " :Welcome to the Internet Relay Network" + nickname + "!");
-    send_response("002 " + nickname + " :Your host is our.server42.at.");
-    send_response(
-        "003 "
-        " :This server was created today.");
+    send_numeric_response(001, "", "Welcome to the Internet Relay Network " + nickname + "!");
+    send_numeric_response(002, "", "Your host is our.server42.at.");
+    send_numeric_response(003, "", "This server was created today.");
     return true;
 }
 
@@ -91,6 +88,10 @@ void Client::send_response(const std::string& response) {
 // TODO: accept params ase multiple strings: maybe with array, vector or vargs
 void Client::send_numeric_response(const unsigned int numeric, std::string params, const std::string& message) {
     std::string response = to_string(numeric);
+    // make sure the numeric has 3 digits
+    while (response.size() < 3) {
+        response.insert(response.begin(), '0');
+    }
     response += nickname.empty() ? " *" : (" " + nickname);
     if (!params.empty()) {
         response += " " + params;
@@ -109,5 +110,5 @@ const std::string& Client::get_hostname() const {
 }
 
 std::string Client::get_prefix() const {
-        return ":" + nickname + "!" + username + "@" + hostname;
+    return ":" + nickname + "!" + username + "@" + hostname;
 }

@@ -97,13 +97,13 @@ void Command::cmd_nick(Server* server) {
 
 void Command::cmd_pass(Server* server) {
     if (parameters.size() < 1) {
-        std::cout << "Not enough parameters" << std::endl;
+        log_msg(WARNING, "PASS command: Not enough parameters");
         client.send_numeric_response(ERR_NEEDMOREPARAMS, "PASS", "Not enough parameters");
         return;
     }
     // check if already registered --> ERR_ALREADYREGISTRED
     client.correct_password = server->is_correct_password(parameters.at(0));
-    std::cout << "client.correct_password: " << client.correct_password << std::endl;
+    log_msg(DEBUG, "client.correct_password: " + to_string(client.correct_password));
 }
 
 // Parameters: <username> <hostname> <servername> <realname>
@@ -185,7 +185,7 @@ void Command::cmd_privmsg(Server* server) {
         for (size_t i = 0; i < targets.size(); i++) {
             std::string& target = targets[i];
             if (target.empty()) continue;
-            std::cout << "target: " << target << "\n";
+            log_msg(DEBUG, "target: " + target);
             if (target.at(0) == '#' && server->chan_man.channel_exists(target)) {
                 std::string privmsg = client.get_prefix() + " PRIVMSG " + target + " :" + message;
                 server->chan_man.find_channel_by_name(target)->broadcast(privmsg, &client);
@@ -218,9 +218,9 @@ void Command::execute(Server* server) {
     
 
     if (cmd_functions.find(this->command) != cmd_functions.end()) {
-        std::cout << "Command found: " << this->command << std::endl;
+        log_msg(DEBUG, "Command found: " + this->command);
         (this->*cmd_functions[this->command])(server);
     } else {
-        std::cout << "Command not found: '" << this->command << "'" << std::endl;
+        log_msg(WARNING, "Command not found: '" + this->command + "'");
     }
 }
