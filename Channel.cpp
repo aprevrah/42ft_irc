@@ -21,7 +21,12 @@ void Channel::join_client(Client* client, bool is_operator) {
     }
     
     if (invite_only) {
-        // TODO: implement invite system
+        // Check if client is invited
+        if (!is_client_invited(client)) {
+            throw IRCException("Invite only channel", ERR_INVITEONLYCHAN);
+        }
+        // Remove from invite list once they join
+        remove_invite(client);
     }
     
     // Add client to channel
@@ -86,4 +91,84 @@ void Channel::broadcast(const std::string &msg, Client *sender) const {
             client->send_response(msg);
         }
     }
+}
+
+void Channel::broadcast(const std::string &msg) const {
+    for (std::map<Client *, bool>::const_iterator it = clients.begin(); it != clients.end(); it++) {
+        Client * client = it->first;
+        if (client) {
+            client->send_response(msg);
+        }
+    }
+}
+
+// Mode methods
+bool Channel::is_invite_only() const {
+    return invite_only;
+}
+
+bool Channel::is_topic_restricted() const {
+    return topic_needs_op;
+}
+
+bool Channel::has_key() const {
+    return !passwd.empty();
+}
+
+bool Channel::has_user_limit() const {
+    return user_limit > 0;
+}
+
+unsigned int Channel::get_user_limit() const {
+    return user_limit;
+}
+
+const std::string& Channel::get_key() const {
+    return passwd;
+}
+
+void Channel::set_invite_only(bool value) {
+    invite_only = value;
+}
+
+void Channel::set_topic_restricted(bool value) {
+    topic_needs_op = value;
+}
+
+void Channel::set_key(const std::string& key) {
+    passwd = key;
+}
+
+void Channel::set_user_limit(unsigned int limit) {
+    user_limit = limit;
+}
+
+void Channel::set_client_operator(Client* client, bool is_op) {
+    if (client && is_client_in_channel(client)) {
+        clients[client] = is_op;
+    }
+}
+
+// Invite system methods
+void Channel::invite_client(Client* client) {
+    if (client) {
+        invited_clients.insert(client);
+    }
+}
+
+bool Channel::is_client_invited(Client* client) const {
+    if (!client) {
+        return false;
+    }
+    return invited_clients.find(client) != invited_clients.end();
+}
+
+void Channel::remove_invite(Client* client) {
+    if (client) {
+        invited_clients.erase(client);
+    }
+}
+
+const std::map<Client*, bool>& Channel::get_clients() const {
+    return clients;
 }

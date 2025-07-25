@@ -23,6 +23,7 @@ class Command {
     std::string              command;
     std::vector<std::string> parameters;
     Client&                  client;
+
     t_command_status         cmd_cap(Server* server);
     t_command_status         cmd_pass(Server* server);
     t_command_status         cmd_nick(Server* server);
@@ -32,7 +33,11 @@ class Command {
     t_command_status         cmd_part(Server* server);
     t_command_status         cmd_privmsg(Server* server);
     t_command_status         cmd_quit(Server* server);
-
+    t_command_status         cmd_mode(Server* server);
+    t_command_status         cmd_invite(Server* server);
+    
+    void                    send_channel_modes(Channel* channel);
+    void                    process_modes(Server* server, Channel* channel, const std::string& modes, const std::vector<std::string>& params);
    public:
     Command(std::string command_str, Client& client);
     Command(const Command& other);
