@@ -16,6 +16,7 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "ChannelManager.hpp"
+#include "log.hpp"
 
 #define SERVER_NAME "AmazingServer"
 #define MAX_EVENTS 20

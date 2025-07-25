@@ -26,7 +26,7 @@ void Server::disconnect_client(int client_fd, std::string reason) {
     clients.erase(client_fd);
     epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
     close(client_fd);
-    std::cout << "Client " << client_fd << " disconnected" << std::endl;
+    log_msg(INFO, "Client " + to_string(client_fd) + " disconnected");
 }
 
 void Server::handle_new_connection() {
@@ -48,7 +48,7 @@ void Server::handle_new_connection() {
         exit(1);
     }
     clients[client_fd] = Client(client_fd, this);
-    std::cout << "connection accepted: " << client_fd << std::endl;
+    log_msg(INFO, "connection accepted: " + to_string(client_fd));
 }
 void Server::handle_received_data(int client_fd) {
     char    read_buffer[32];
@@ -69,7 +69,7 @@ void Server::handle_received_data(int client_fd) {
             }
             break;
         }
-        std::cout << "data received: '" << read_buffer << "'" << std::endl;
+        log_msg(DEBUG, "data received: '" + std::string(read_buffer) + "'");
         clients.at(client_fd).add_to_buffer(std::string(read_buffer));
     }
 }
@@ -94,15 +94,16 @@ void Server::run() {
     event.data.fd = server_socket_fd;
     epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_socket_fd, &event);
     struct epoll_event events[MAX_EVENTS];
-    std::cout << "Everything initilized. Listening on port " << port << "." << std::endl;
+    log_msg(INFO, "Everything initialized. Listening on port " + to_string(port) + ".");
+
     while (true) {
-        std::cout << "epoll waiting" << std::endl;
+        log_msg(DEBUG, "epoll waiting");
         int num_events = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
         if (num_events == -1) {
-            std::cerr << "epoll failed";
+            log_msg(ERROR, "epoll failed");
             exit(1);
         }
-        std::cout << "processing epoll events" << std::endl;
+        log_msg(DEBUG, "processing epoll events");
         for (int i = 0; i < num_events; i++) {
             // new connection request on server socket
             if (events[i].data.fd == server_socket_fd) {
