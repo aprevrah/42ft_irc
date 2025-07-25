@@ -43,7 +43,7 @@ void ChannelManager::leave_channel(Client* client, const std::string& channel_na
 void ChannelManager::quit_all_channels(Client &client, std::string reason) {
     for (size_t i = 0; i < channels.size(); i++) {
         if (channels[i].is_client_in_channel(&client)) {
-            channels[i].broadcast("QUIT :" + reason, &client);
+            channels[i].broadcast(client.get_prefix() + " QUIT :" + reason, &client);
             channels[i].leave_client(&client);
         }
     }
