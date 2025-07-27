@@ -15,7 +15,7 @@ private:
     Channel* find_channel_by_name(const std::string& name);
     ChannelManager();
     ~ChannelManager();
-    void join_channel(Client* client, const std::string& channel_name);
+    void join_channel(Client* client, const std::string& channel_name, const std::string& key = "");
     void leave_channel(Client* client, const std::string& channel_name);
     bool channel_exists(const std::string& name);
 
