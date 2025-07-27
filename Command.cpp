@@ -180,12 +180,12 @@ t_command_status Command::cmd_part(Server* server) {
     } else {
         std::string& chan_name = parameters.front();
         try {
-            server->chan_man.leave_channel(&client, chan_name);
-
             Channel* channel = server->chan_man.find_channel_by_name(chan_name);
+            std::string part_msg = client.get_prefix() + " PART " + chan_name;
+            server->chan_man.leave_channel(&client, chan_name);
             if (channel) {
-                std::string part_msg = client.get_prefix() + " PART " + chan_name;
                 channel->broadcast(part_msg, NULL);
+                client.send_response(part_msg);
             }
             return CMD_SUCCESS;
         } catch (IRCException& e) {
