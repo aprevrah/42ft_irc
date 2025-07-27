@@ -1,0 +1,49 @@
+name: Code Formatting Check
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install clang-format
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format
+        
+    - name: Check code formatting
+      run: |
+        # Find all C++ source files
+        FILES=$(find . -name "*.cpp" -o -name "*.hpp" -o -name "*.c" -o -name "*.h" | grep -v ".git")
+        
+        # Check if any files need formatting
+        NEEDS_FORMAT=""
+        for file in $FILES; do
+          if ! clang-format --dry-run --Werror "$file" > /dev/null 2>&1; then
+            echo "❌ File needs formatting: $file"
+            echo "Expected format:"
+            clang-format "$file" | head -20
+            echo "..."
+            NEEDS_FORMAT="true"
+          else
+            echo "✅ File is properly formatted: $file"
+          fi
+        done
+        
+        if [ "$NEEDS_FORMAT" = "true" ]; then
+          echo ""
+          echo "💡 To fix formatting issues, run:"
+          echo "   find . -name '*.cpp' -o -name '*.hpp' -o -name '*.c' -o -name '*.h' | grep -v '.git' | xargs clang-format -i"
+          exit 1
+        else
+          echo ""
+          echo "🎉 All files are properly formatted!"
+        fi
