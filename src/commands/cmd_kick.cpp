@@ -14,7 +14,7 @@ t_command_status Command::cmd_kick(Server* server) {
     std::string comment = "";
 
     // Extract comment if provided
-    if (parameters.size() > 2) {
+    if (parameters.size() > 2 && !parameters[2].empty()) {
         comment = parameters[2];
     } else {
         comment = "Kicked by " + client.get_nickname();
@@ -25,18 +25,6 @@ t_command_status Command::cmd_kick(Server* server) {
         Channel* channel = server->chan_man.find_channel_by_name(channel_name);
         if (!channel) {
             client.send_numeric_response(ERR_NOSUCHCHANNEL, channel_name, "No such channel");
-            return CMD_FAILURE;
-        }
-
-        // Check if the client is in the channel
-        if (!channel->is_client_in_channel(&client)) {
-            client.send_numeric_response(ERR_NOTONCHANNEL, channel_name, "You're not on that channel");
-            return CMD_FAILURE;
-        }
-
-        // Check if the client has operator privileges
-        if (!channel->is_client_operator(&client)) {
-            client.send_numeric_response(ERR_CHANOPRIVSNEEDED, channel_name, "You're not channel operator");
             return CMD_FAILURE;
         }
 
@@ -61,28 +49,28 @@ t_command_status Command::cmd_kick(Server* server) {
         for (std::vector<std::string>::iterator it = target_nicks.begin(); it != target_nicks.end(); ++it) {
             std::string target_nick = *it;
 
-            // Find the target client by nickname
-            Client* target_client = server->get_client_by_nick(target_nick);
-            if (!target_client) {
-                client.send_numeric_response(ERR_NOSUCHNICK, target_nick, "No such nick/channel");
-                continue;  // Continue with next user instead of returning failure
+            try {
+                // Find the target client by nickname
+                Client* target_client = server->get_client_by_nick(target_nick);
+                if (!target_client) {
+                    client.send_numeric_response(ERR_NOSUCHNICK, target_nick, "No such nick/channel");
+                    continue;  // Continue with next user instead of returning failure
+                }
+
+                // Use the channel's kick method
+                channel->kick_client(target_client, &client, comment);
+
+            } catch (IRCException& e) {
+                if (e.get_irc_numeric() == ERR_USERNOTINCHANNEL) {
+                    client.send_numeric_response(e.get_irc_numeric(), target_nick + " " + channel_name, e.what());
+                } else {
+                    client.send_numeric_response(e.get_irc_numeric(), target_nick, e.what());
+                }
+                continue;  // Continue with next user
+            } catch (std::exception& e) {
+                client.send_response(std::string("KICK fail for ") + target_nick + ": " + e.what());
+                continue;  // Continue with next user
             }
-
-            // Check if the target client is in the channel
-            if (!channel->is_client_in_channel(target_client)) {
-                client.send_numeric_response(ERR_USERNOTINCHANNEL, target_nick + " " + channel_name,
-                                             "They aren't on that channel");
-                continue;  // Continue with next user instead of returning failure
-            }
-
-            // Construct KICK message
-            std::string kick_msg = client.get_prefix() + " KICK " + channel_name + " " + target_nick + " :" + comment;
-
-            // Broadcast the KICK message to all channel members
-            channel->broadcast(kick_msg, NULL);
-
-            // Remove the target client from the channel
-            channel->leave_client(target_client);
         }
 
         return CMD_SUCCESS;
