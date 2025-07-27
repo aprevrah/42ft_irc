@@ -172,3 +172,29 @@ void Channel::remove_invite(Client* client) {
 const std::map<Client*, bool>& Channel::get_clients() const {
     return clients;
 }
+
+
+void Channel::send_topic_to_client(Client& client) const {
+    if (!topic.empty()) {
+        client.send_numeric_response(RPL_TOPIC, name, topic);
+    } else {
+        client.send_numeric_response(RPL_NOTOPIC, name, "No topic is set");
+    }
+}
+
+void Channel::send_names_to_client(Client& client) const {
+    std::string names_list = "";
+    
+    for (std::map<Client*, bool>::const_iterator it = clients.begin(); it != clients.end(); ++it) {
+        if (it != clients.begin()) {
+            names_list += " ";
+        }
+        if (it->second) {  // if client is operator
+            names_list += "@";
+        }
+        names_list += it->first->get_nickname();
+    }
+    
+    client.send_numeric_response(RPL_NAMREPLY, "= " + name, names_list);
+    client.send_numeric_response(RPL_ENDOFNAMES, name, "End of NAMES list");
+}

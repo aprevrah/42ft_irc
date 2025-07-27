@@ -19,6 +19,7 @@ class ChannelManager {
     void join_channel(Client* client, const std::string& channel_name, const std::string& key = "");
     void leave_channel(Client* client, const std::string& channel_name);
     bool channel_exists(const std::string& name);
+    bool is_valid_channel_name(const std::string& name);
 
     /**
      * @brief This is for when a client quits/disconnets from the server

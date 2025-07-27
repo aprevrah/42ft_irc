@@ -42,6 +42,10 @@ class Channel {
     void               broadcast(const std::string& msg, Client* sender) const;
     void               broadcast(const std::string& msg) const;
 
+    // Channel info methods
+    void               send_topic_to_client(Client& client) const;
+    void               send_names_to_client(Client& client) const;
+
     // Mode methods
     bool               is_invite_only() const;
     bool               is_topic_restricted() const;
@@ -63,4 +67,5 @@ class Channel {
 
     // For ChannelManager access
     const std::map<Client*, bool>& get_clients() const;
+
 };

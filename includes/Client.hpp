@@ -33,7 +33,7 @@ class Client {
     t_command_status add_to_buffer(std::string new_bytes);
     int              get_fd() const;
 
-    void send_response(const std::string& response);
+    void send_response(const std::string& response) const;
 
     /**
      * @brief Sends a numeric reply to the client.
@@ -44,7 +44,7 @@ class Client {
      * @param params Space-separated parameters for the reply.
      * @param message The trailing part of the message, which will be prefixed with a colon.
      */
-    void send_numeric_response(const unsigned int numeric, std::string params, const std::string& message);
+    void send_numeric_response(const unsigned int numeric, std::string params, const std::string& message) const;
 
     const std::string& get_nickname() const;
     const std::string& get_hostname() const;

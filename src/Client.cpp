@@ -90,14 +90,14 @@ void Client::set_nickname(const std::string& nickname) {
     this->nickname = nickname;
 }
 
-void Client::send_response(const std::string& response) {
+void Client::send_response(const std::string& response) const {
     std::string formatted_response = response;
     formatted_response += "\r\n";
     write(this->fd, formatted_response.c_str(), formatted_response.length());
 }
 
 // TODO: accept params ase multiple strings: maybe with array, vector or vargs
-void Client::send_numeric_response(const unsigned int numeric, std::string params, const std::string& message) {
+void Client::send_numeric_response(const unsigned int numeric, std::string params, const std::string& message) const {
     std::string response = to_string(numeric);
     // make sure the numeric has 3 digits
     while (response.size() < 3) {

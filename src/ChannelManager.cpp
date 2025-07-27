@@ -22,6 +22,9 @@ bool ChannelManager::channel_exists(const std::string& name) {
 }
 
 void ChannelManager::join_channel(Client* client, const std::string& channel_name, const std::string& key) {
+    if (!is_valid_channel_name(channel_name)) {
+        throw IRCException("Bad Channel Mask", ERR_BADCHANMASK);
+    }
     Channel* channel = find_channel_by_name(channel_name);
     if (channel) {
         // Check if channel has a key and key is required
@@ -58,4 +61,31 @@ void ChannelManager::quit_all_channels(Client& client, std::string reason) {
             channels[i].leave_client(&client);
         }
     }
+}
+
+bool ChannelManager::is_valid_channel_name(const std::string& name) {
+    // Channel name must not be empty
+    if (name.empty()) {
+        return false;
+    }
+    
+    // Channel name must start with # or &
+    if (name[0] != '#' && name[0] != '&') {
+        return false;
+    }
+    
+    // Channel name must be at least 2 characters (prefix + name)
+    if (name.length() < 2) {
+        return false;
+    }
+    
+    // Channel names cannot contain spaces, commas, or control characters
+    for (size_t i = 0; i < name.length(); i++) {
+        char c = name[i];
+        if (c == ' ' || c == ',' || c == '\0' || c == '\r' || c == '\n' || c == 7) {
+            return false;
+        }
+    }
+    
+    return true;
 }

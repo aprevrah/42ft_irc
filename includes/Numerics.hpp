@@ -3,6 +3,8 @@
 #define RPL_NOTOPIC    331
 #define RPL_TOPIC      332
 #define RPL_INVITING   341
+#define RPL_NAMREPLY   353
+#define RPL_ENDOFNAMES 366
 
 // Errors
 #define ERR_NOSUCHNICK        401
@@ -19,4 +21,5 @@
 #define ERR_CHANNELISFULL     471
 #define ERR_INVITEONLYCHAN    473
 #define ERR_BADCHANNELKEY     475
+#define ERR_BADCHANMASK       476
 #define ERR_CHANOPRIVSNEEDED  482
