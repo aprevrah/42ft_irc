@@ -9,15 +9,16 @@
 
 class Command;
 
-Client::Client() {}
+Client::Client() : server(NULL), fd(-1), registered(false), correct_password(false) {}
 
-Client::Client(int fd, Server* server) : server(server), fd(fd), hostname("localhost"), registered(false) {}
+Client::Client(int fd, Server* server) : server(server), fd(fd), hostname("localhost"), registered(false), correct_password(false) {}
 
 Client::Client(const Client& other) : server(other.server), fd(other.fd) {
     this->nickname = other.nickname;
     this->hostname = other.hostname;
     this->message_buffer = other.message_buffer;
     this->registered = other.registered;
+    this->correct_password = other.correct_password;
 }
 
 Client& Client::operator=(const Client& other) {
@@ -26,6 +27,8 @@ Client& Client::operator=(const Client& other) {
     this->nickname = other.nickname;
     this->hostname = other.hostname;
     this->message_buffer = other.message_buffer;
+    this->registered = other.registered;
+    this->correct_password = other.correct_password;
     return *this;
 }
 
