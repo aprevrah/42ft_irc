@@ -6,16 +6,11 @@
 #include "ChannelManager.hpp"
 #include "Client.hpp"
 #include "Server.hpp"
+#include "ft_irc.hpp"
 #include "to_string.hpp"
 
 class Server;
 class Client;
-
-typedef enum command_status {
-    CMD_SUCCESS,
-    CMD_FAILURE, // their was some error but the client is still connected
-    CLIENT_DISCONNECTED, // if the client send QUIT or sth fatal goes wrong
-} t_command_status;
 
 class Command {
    private:

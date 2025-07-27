@@ -6,6 +6,7 @@
 
 #include "Command.hpp"
 #include "to_string.hpp"
+#include "ft_irc.hpp"
 
 class Server;  // Forward declaration
 

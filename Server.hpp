@@ -2,24 +2,23 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <cstring>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <map>
-#include <string>
 
-#include "Client.hpp"
 #include "Channel.hpp"
 #include "ChannelManager.hpp"
-#include "log.hpp"
+#include "Client.hpp"
+#include "ft_irc.hpp"
 
 #define SERVER_NAME "AmazingServer"
-#define MAX_EVENTS 20
+#define MAX_EVENTS  20
 
 class Client;
 
@@ -45,6 +44,6 @@ class Server {
     bool is_correct_password(std::string password);
     void disconnect_client(int client_fd, std::string reason);
 
-    bool is_nick_available(const std::string nick);
+    bool    is_nick_available(const std::string nick);
     Client* get_client_by_nick(const std::string nick);
 };

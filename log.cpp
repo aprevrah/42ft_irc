@@ -1,4 +1,5 @@
-#include "log.hpp"
+#include "ft_irc.hpp"
+#include <ctime>
 
 // printing on stderr because stdout could be redirected
 void log_msg(t_log_level level, std::string msg) {
