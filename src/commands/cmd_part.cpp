@@ -7,7 +7,7 @@ t_command_status Command::cmd_part(Server* server) {
     } else {
         std::string& chan_name = parameters.front();
         try {
-            Channel* channel = server->chan_man.find_channel_by_name(chan_name);
+            Channel*    channel = server->chan_man.find_channel_by_name(chan_name);
             std::string part_msg = client.get_prefix() + " PART " + chan_name;
             server->chan_man.leave_channel(&client, chan_name);
             if (channel) {

@@ -11,7 +11,8 @@ class Command;
 
 Client::Client() : server(NULL), fd(-1), registered(false), correct_password(false) {}
 
-Client::Client(int fd, Server* server) : server(server), fd(fd), hostname("localhost"), registered(false), correct_password(false) {}
+Client::Client(int fd, Server* server)
+    : server(server), fd(fd), hostname("localhost"), registered(false), correct_password(false) {}
 
 Client::Client(const Client& other) : server(other.server), fd(other.fd) {
     this->nickname = other.nickname;
