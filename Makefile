@@ -2,7 +2,7 @@ NAME = ircserv
 SRCS = main.cpp Server.cpp Client.cpp Command.cpp Channel.cpp ChannelManager.cpp log.cpp
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g #TODO: remove -g
 OBJS = $(SRCS:.cpp=.o)
 
 all: $(NAME)

@@ -17,6 +17,7 @@ Client::Client(const Client& other) : server(other.server), fd(other.fd) {
     this->nickname = other.nickname;
     this->hostname = other.hostname;
     this->message_buffer = other.message_buffer;
+    this->registered = other.registered;
 }
 
 Client& Client::operator=(const Client& other) {
@@ -42,13 +43,18 @@ void Client::add_to_buffer(std::string new_bytes) {
 
         try {
             Command cmd(complete_message, *this);
+            message_buffer.erase(0, crlf_pos + 2);
             cmd.execute(this->server);
         } catch (std::exception& e) {
+            message_buffer.erase(0, crlf_pos + 2);
             log_msg(ERROR, "Error while parsing command: " + std::string(e.what()));
         }
 
-        message_buffer.erase(0, crlf_pos + 2);
     }
+}
+
+bool  Client::is_registered() {
+    return registered;
 }
 
 bool Client::try_register() {

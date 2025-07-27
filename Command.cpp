@@ -101,6 +101,10 @@ void Command::cmd_pass(Server* server) {
         client.send_numeric_response(ERR_NEEDMOREPARAMS, "PASS", "Not enough parameters");
         return;
     }
+    if (client.is_registered()) {
+        client.send_numeric_response(ERR_ALREADYREGISTERED, "PASS", "You may not reregister");
+        return;
+    }
     // check if already registered --> ERR_ALREADYREGISTRED
     client.correct_password = server->is_correct_password(parameters.at(0));
     log_msg(DEBUG, "client.correct_password: " + to_string(client.correct_password));
