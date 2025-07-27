@@ -173,7 +173,6 @@ const std::map<Client*, bool>& Channel::get_clients() const {
     return clients;
 }
 
-
 void Channel::send_topic_to_client(Client& client) const {
     if (!topic.empty()) {
         client.send_numeric_response(RPL_TOPIC, name, topic);
@@ -184,7 +183,7 @@ void Channel::send_topic_to_client(Client& client) const {
 
 void Channel::send_names_to_client(Client& client) const {
     std::string names_list = "";
-    
+
     for (std::map<Client*, bool>::const_iterator it = clients.begin(); it != clients.end(); ++it) {
         if (it != clients.begin()) {
             names_list += " ";
@@ -194,7 +193,41 @@ void Channel::send_names_to_client(Client& client) const {
         }
         names_list += it->first->get_nickname();
     }
-    
+
     client.send_numeric_response(RPL_NAMREPLY, "= " + name, names_list);
     client.send_numeric_response(RPL_ENDOFNAMES, name, "End of NAMES list");
+}
+
+void Channel::kick_client(Client* target, Client* kicker, const std::string& comment) {
+    if (!target) {
+        throw IRCException("No such nick/channel", ERR_NOSUCHNICK);
+    }
+
+    if (!kicker) {
+        throw std::invalid_argument("kicker is null");
+    }
+
+    // Check if kicker is in the channel
+    if (!is_client_in_channel(kicker)) {
+        throw IRCException("You're not on that channel", ERR_NOTONCHANNEL);
+    }
+
+    // Check if kicker has operator privileges
+    if (!is_client_operator(kicker)) {
+        throw IRCException("You're not channel operator", ERR_CHANOPRIVSNEEDED);
+    }
+
+    // Check if target is in the channel
+    if (!is_client_in_channel(target)) {
+        throw IRCException("They aren't on that channel", ERR_USERNOTINCHANNEL);
+    }
+
+    // Construct KICK message
+    std::string kick_msg = kicker->get_prefix() + " KICK " + name + " " + target->get_nickname() + " :" + comment;
+
+    // Broadcast the KICK message to all channel members
+    broadcast(kick_msg);
+
+    // Remove the target client from the channel
+    leave_client(target);
 }
