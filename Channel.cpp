@@ -1,25 +1,24 @@
 #include "Channel.hpp"
+
 #include "Client.hpp"
 
 Channel::Channel() : name(""), invite_only(false), topic_needs_op(false), user_limit(0) {
-    (void) topic_needs_op;
+    (void)topic_needs_op;
 }
 
-Channel::Channel(const std::string &name) : name(name), invite_only(false), topic_needs_op(false), user_limit(0) {
-}
+Channel::Channel(const std::string& name) : name(name), invite_only(false), topic_needs_op(false), user_limit(0) {}
 
-Channel::~Channel() {
-}
+Channel::~Channel() {}
 
 void Channel::join_client(Client* client, bool is_operator) {
     if (!client) {
         throw std::invalid_argument("client is null");
     }
-    
+
     if (user_limit > 0 && clients.size() >= user_limit) {
         throw IRCException("Channel is full", ERR_CHANNELISFULL);
     }
-    
+
     if (invite_only) {
         // Check if client is invited
         if (!is_client_invited(client)) {
@@ -28,7 +27,7 @@ void Channel::join_client(Client* client, bool is_operator) {
         // Remove from invite list once they join
         remove_invite(client);
     }
-    
+
     // Add client to channel
     clients[client] = is_operator;
 }
@@ -37,13 +36,14 @@ void Channel::leave_client(Client* client) {
     if (!client) {
         throw std::invalid_argument("client is null");
     }
-    
+
     std::map<Client*, bool>::iterator it = clients.find(client);
     if (it != clients.end()) {
         // TODO: should the other clients in the channel be notified?
         clients.erase(it);
-    } else 
+    } else {
         throw IRCException("Not on that channel", ERR_NOTONCHANNEL);
+    }
 }
 
 bool Channel::is_client_in_channel(Client* client) const {
@@ -57,9 +57,9 @@ bool Channel::is_client_operator(Client* client) const {
     if (!client) {
         return false;
     }
-    std::map<Client *, bool>::const_iterator it = clients.find(client);
+    std::map<Client*, bool>::const_iterator it = clients.find(client);
     if (it != clients.end()) {
-        return it->second; // true if operator, false if regular user
+        return it->second;  // true if operator, false if regular user
     }
     return false;
 }
@@ -84,18 +84,18 @@ bool Channel::is_full() const {
     return clients.size() >= user_limit;
 }
 
-void Channel::broadcast(const std::string &msg, Client *sender) const {
-    for (std::map<Client *, bool>::const_iterator it = clients.begin(); it != clients.end(); it++) {
-        Client * client = it->first;
+void Channel::broadcast(const std::string& msg, Client* sender) const {
+    for (std::map<Client*, bool>::const_iterator it = clients.begin(); it != clients.end(); it++) {
+        Client* client = it->first;
         if (client && client != sender) {
             client->send_response(msg);
         }
     }
 }
 
-void Channel::broadcast(const std::string &msg) const {
-    for (std::map<Client *, bool>::const_iterator it = clients.begin(); it != clients.end(); it++) {
-        Client * client = it->first;
+void Channel::broadcast(const std::string& msg) const {
+    for (std::map<Client*, bool>::const_iterator it = clients.begin(); it != clients.end(); it++) {
+        Client* client = it->first;
         if (client) {
             client->send_response(msg);
         }

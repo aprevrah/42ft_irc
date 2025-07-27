@@ -1,12 +1,13 @@
-#include "ft_irc.hpp"
 #include <ctime>
+
+#include "ft_irc.hpp"
 
 // printing on stderr because stdout could be redirected
 void log_msg(t_log_level level, std::string msg) {
     if (level <= LOG_LEVEL) {
         std::time_t now = std::time(0);
         std::tm*    local_time = std::localtime(&now);
-        char timestamp[32];
+        char        timestamp[32];
         std::strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", local_time);
         std::cerr << "[" << timestamp << "] ";
 

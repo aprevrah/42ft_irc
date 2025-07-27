@@ -43,7 +43,7 @@ t_command_status Client::add_to_buffer(std::string new_bytes) {
 
         try {
             Command cmd(complete_message, *this);
-            if(cmd.execute(this->server) == CLIENT_DISCONNECTED) {
+            if (cmd.execute(this->server) == CLIENT_DISCONNECTED) {
                 return CLIENT_DISCONNECTED;
             }
         } catch (std::exception& e) {
@@ -54,7 +54,7 @@ t_command_status Client::add_to_buffer(std::string new_bytes) {
     return CMD_SUCCESS;
 }
 
-bool  Client::is_registered() {
+bool Client::is_registered() {
     return registered;
 }
 

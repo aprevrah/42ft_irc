@@ -1,4 +1,5 @@
 #include "ChannelManager.hpp"
+
 #include "Client.hpp"
 #include "IRCException.hpp"
 #include "Numerics.hpp"
@@ -35,22 +36,22 @@ void ChannelManager::join_channel(Client* client, const std::string& channel_nam
             new_channel.set_key(key);
         }
         channels.push_back(new_channel);
-        return channels.back().join_client(client, true); //first user op
+        return channels.back().join_client(client, true);  // first user op
     }
 }
 
 void ChannelManager::leave_channel(Client* client, const std::string& channel_name) {
     Channel* channel = find_channel_by_name(channel_name);
-    
+
     if (channel) {
         channel->leave_client(client);
         // Optionally remove empty channels here
     } else {
-        throw   IRCException("Not such chan", ERR_NOSUCHCHANNEL);
+        throw IRCException("Not such chan", ERR_NOSUCHCHANNEL);
     }
 }
 
-void ChannelManager::quit_all_channels(Client &client, std::string reason) {
+void ChannelManager::quit_all_channels(Client& client, std::string reason) {
     for (size_t i = 0; i < channels.size(); i++) {
         if (channels[i].is_client_in_channel(&client)) {
             channels[i].broadcast(client.get_prefix() + " QUIT :" + reason, &client);

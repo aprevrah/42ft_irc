@@ -72,7 +72,7 @@ void Server::handle_received_data(int client_fd) {
         log_msg(DEBUG, "data received: '" + std::string(read_buffer) + "'");
         int status = clients.at(client_fd).add_to_buffer(std::string(read_buffer));
         if (status == CLIENT_DISCONNECTED) {
-            return ;
+            return;
         }
     }
 }

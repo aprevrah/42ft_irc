@@ -5,8 +5,8 @@
 #include <string>
 
 #include "Command.hpp"
-#include "to_string.hpp"
 #include "ft_irc.hpp"
+#include "to_string.hpp"
 
 class Server;  // Forward declaration
 
@@ -31,7 +31,7 @@ class Client {
     ~Client();
 
     t_command_status add_to_buffer(std::string new_bytes);
-    int  get_fd() const;
+    int              get_fd() const;
 
     void send_response(const std::string& response);
 
