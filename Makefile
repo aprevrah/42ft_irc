@@ -5,7 +5,18 @@ src/Client.cpp \
 src/Command.cpp \
 src/Channel.cpp \
 src/ChannelManager.cpp \
-src/log.cpp
+src/log.cpp \
+src/commands/cmd_cap.cpp \
+src/commands/cmd_nick.cpp \
+src/commands/cmd_pass.cpp \
+src/commands/cmd_user.cpp \
+src/commands/cmd_ping.cpp \
+src/commands/cmd_join.cpp \
+src/commands/cmd_part.cpp \
+src/commands/cmd_quit.cpp \
+src/commands/cmd_privmsg.cpp \
+src/commands/cmd_mode.cpp \
+src/commands/cmd_invite.cpp
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -19,12 +30,11 @@ $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS)
-	rmdir $(OBJ_DIR)
+	rm -rf $(OBJ_DIR)
 
 fclean: clean
 	rm -f $(NAME)
