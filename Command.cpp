@@ -123,7 +123,7 @@ t_command_status Command::cmd_user(Server* server) {
         return CMD_FAILURE;
     }
     if (client.is_registered()) {
-        client.send_numeric_response(ERR_ALREADYREGISTERED, "PASS", "You may not reregister");
+        client.send_numeric_response(ERR_ALREADYREGISTERED, "USER", "You may not reregister");
     }
     client.set_username(parameters.at(0));
     // TODO: do sth with the other parameters?
