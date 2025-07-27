@@ -31,7 +31,7 @@ Client& Client::operator=(const Client& other) {
 
 Client::~Client() {}
 
-void Client::add_to_buffer(std::string new_bytes) {
+t_command_status Client::add_to_buffer(std::string new_bytes) {
     message_buffer += new_bytes;
 
     // Check for complete messages (ending with CRLF)
@@ -43,14 +43,15 @@ void Client::add_to_buffer(std::string new_bytes) {
 
         try {
             Command cmd(complete_message, *this);
-            message_buffer.erase(0, crlf_pos + 2);
-            cmd.execute(this->server);
+            if(cmd.execute(this->server) == CLIENT_DISCONNECTED) {
+                return CLIENT_DISCONNECTED;
+            }
         } catch (std::exception& e) {
-            message_buffer.erase(0, crlf_pos + 2);
             log_msg(ERROR, "Error while parsing command: " + std::string(e.what()));
         }
-
+        message_buffer.erase(0, crlf_pos + 2);
     }
+    return CMD_SUCCESS;
 }
 
 bool  Client::is_registered() {

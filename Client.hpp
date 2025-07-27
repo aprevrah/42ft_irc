@@ -28,7 +28,8 @@ class Client {
     Client(const Client& other);
     Client& operator=(const Client& other);
     ~Client();
-    void add_to_buffer(std::string new_bytes);
+
+    t_command_status add_to_buffer(std::string new_bytes);
     int  get_fd() const;
 
     void send_response(const std::string& response);
