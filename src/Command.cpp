@@ -85,6 +85,7 @@ t_command_status Command::execute(Server* server) {
     cmd_functions["PRIVMSG"] = &Command::cmd_privmsg;
     cmd_functions["MODE"] = &Command::cmd_mode;
     cmd_functions["INVITE"] = &Command::cmd_invite;
+    cmd_functions["TOPIC"] = &Command::cmd_topic;
 
     if (cmd_functions.find(this->command) != cmd_functions.end()) {
         log_msg(DEBUG, "Command found: " + this->command);

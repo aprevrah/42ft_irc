@@ -16,7 +16,8 @@ src/commands/cmd_part.cpp \
 src/commands/cmd_quit.cpp \
 src/commands/cmd_privmsg.cpp \
 src/commands/cmd_mode.cpp \
-src/commands/cmd_invite.cpp
+src/commands/cmd_invite.cpp \
+src/commands/cmd_topic.cpp
 
 SRC_DIR = src
 OBJ_DIR = obj

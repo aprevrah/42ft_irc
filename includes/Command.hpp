@@ -30,6 +30,7 @@ class Command {
     t_command_status cmd_quit(Server* server);
     t_command_status cmd_mode(Server* server);
     t_command_status cmd_invite(Server* server);
+    t_command_status cmd_topic(Server* server);
 
     void send_channel_modes(Channel* channel);
     void process_modes(Server* server, Channel* channel, const std::string& modes,

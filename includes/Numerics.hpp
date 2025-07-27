@@ -1,6 +1,8 @@
 
 // Replies
-#define RPL_INVITING 341
+#define RPL_NOTOPIC    331
+#define RPL_TOPIC      332
+#define RPL_INVITING   341
 
 // Errors
 #define ERR_NOSUCHNICK        401
