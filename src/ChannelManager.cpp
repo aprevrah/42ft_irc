@@ -54,10 +54,38 @@ void ChannelManager::leave_channel(Client* client, const std::string& channel_na
     }
 }
 
-void ChannelManager::quit_all_channels(Client& client, std::string reason) {
+void ChannelManager::broadcast_shared_channels(Client& client, const std::string& msg) {
+    std::set<Client*> clients_to_notify;
+    
+    // Collect all unique clients who share channels with the given client
     for (size_t i = 0; i < channels.size(); i++) {
         if (channels[i].is_client_in_channel(&client)) {
-            channels[i].broadcast(client.get_prefix() + " QUIT :" + reason, &client);
+            const std::map<Client*, bool>& channel_clients = channels[i].get_clients();
+            for (std::map<Client*, bool>::const_iterator it = channel_clients.begin(); 
+                 it != channel_clients.end(); ++it) {
+                if (it->first && it->first != &client) {
+                    clients_to_notify.insert(it->first);
+                }
+            }
+        }
+    }
+    
+    // Send message once to each unique client
+    for (std::set<Client*>::iterator it = clients_to_notify.begin(); 
+         it != clients_to_notify.end(); ++it) {
+        (*it)->send_response(msg);
+    }
+}
+
+void ChannelManager::quit_all_channels(Client& client, std::string reason) {
+    std::string quit_msg = client.get_prefix() + " QUIT :" + reason;
+    
+    // Use existing broadcast method to notify all shared channel clients
+    broadcast_shared_channels(client, quit_msg);
+    
+    // Remove client from all channels
+    for (size_t i = 0; i < channels.size(); i++) {
+        if (channels[i].is_client_in_channel(&client)) {
             channels[i].leave_client(&client);
         }
     }

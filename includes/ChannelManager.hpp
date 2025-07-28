@@ -25,4 +25,5 @@ class ChannelManager {
      * @brief This is for when a client quits/disconnets from the server
      */
     void quit_all_channels(Client& client, std::string reaso);
+    void broadcast_shared_channels(Client& client, const std::string& msg);
 };

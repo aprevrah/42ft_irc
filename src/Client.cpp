@@ -63,6 +63,8 @@ bool Client::is_registered() {
 }
 
 bool Client::try_register() {
+    if (registered)
+        return false;
     if (nickname.empty() || username.empty()) {
         return false;
     }
