@@ -14,6 +14,12 @@ Server& Server::operator=(const Server& other) {
 
 Server::~Server() {}
 
+void Server::signal_handler(int signal) {
+    if (signal == SIGINT) {
+        log_msg(INFO, "SIGINT received - interrupt signal caught");
+    }
+}
+
 bool Server::is_correct_password(std::string input) {
     return password == input;
 }
@@ -77,6 +83,14 @@ void Server::handle_received_data(int client_fd) {
     }
 }
 
+void Server::start() {
+    // Register signal handlers
+    signal(SIGINT, Server::signal_handler);
+    run();
+    log_msg(INFO, "shutting down");
+    disconnect_all_clients();
+}
+
 void Server::run() {
     // TODO: check all return values from system calls
     server_socket_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
@@ -103,8 +117,9 @@ void Server::run() {
         log_msg(DEBUG, "epoll waiting");
         int num_events = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
         if (num_events == -1) {
+            perror("epoll");
             log_msg(ERROR, "epoll failed");
-            exit(1);
+            break;
         }
         log_msg(DEBUG, "processing epoll events");
         for (int i = 0; i < num_events; i++) {
@@ -127,6 +142,12 @@ bool Server::is_nick_available(const std::string nick) {
         }
     }
     return true;
+}
+
+void Server::disconnect_all_clients() {
+    while (!clients.empty()) {
+        disconnect_client(clients.begin()->first, "server shutting down");
+    }
 }
 
 Client* Server::get_client_by_nick(const std::string nick) {

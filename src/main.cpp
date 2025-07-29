@@ -9,5 +9,5 @@ int main(int argc, char **argv) {
         return 1;
     }
     Server server(strtol(argv[1], NULL, 10), std::string(argv[2]));
-    server.run();
+    server.start();
 }
