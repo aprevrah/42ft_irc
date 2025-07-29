@@ -4,7 +4,6 @@
 #include <stdexcept>
 #include <string>
 
-#include "IRCException.hpp"
 #include "Numerics.hpp"
 
 class Client;
@@ -12,7 +11,7 @@ class Client;
 class Channel {
    private:
     // bool is true if the client is operator
-    std::map<Client*, bool> clients;
+    std::map<Client *, bool> clients;
     std::string             name;
     std::string             topic;
     // modes
@@ -32,9 +31,9 @@ class Channel {
     // Channel operations
     bool               is_full() const;
     size_t             nbr_of_clients() const;
-    void               join_client(Client* client, bool is_operator = false);
-    void               leave_client(Client* client);
-    void               kick_client(Client* target, Client* kicker, const std::string& comment);
+    int                join_client(Client* client, bool is_operator = false);
+    int                leave_client(Client* client);
+    int                kick_client(Client* target, Client* kicker, const std::string& comment);
     bool               is_client_in_channel(Client* client) const;
     bool               is_client_operator(Client* client) const;
     const std::string& get_name() const;

@@ -10,19 +10,15 @@ Channel::Channel(const std::string& name) : name(name), invite_only(false), topi
 
 Channel::~Channel() {}
 
-void Channel::join_client(Client* client, bool is_operator) {
-    if (!client) {
-        throw std::invalid_argument("client is null");
-    }
-
+int Channel::join_client(Client* client, bool is_operator) {
     if (user_limit > 0 && clients.size() >= user_limit) {
-        throw IRCException("Channel is full", ERR_CHANNELISFULL);
+        return ERR_CHANNELISFULL;
     }
 
     if (invite_only) {
         // Check if client is invited
         if (!is_client_invited(client)) {
-            throw IRCException("Invite only channel", ERR_INVITEONLYCHAN);
+            return ERR_INVITEONLYCHAN;
         }
         // Remove from invite list once they join
         remove_invite(client);
@@ -30,20 +26,17 @@ void Channel::join_client(Client* client, bool is_operator) {
 
     // Add client to channel
     clients[client] = is_operator;
+    return 0;
 }
 
-void Channel::leave_client(Client* client) {
-    if (!client) {
-        throw std::invalid_argument("client is null");
-    }
-
+int Channel::leave_client(Client* client) {
     std::map<Client*, bool>::iterator it = clients.find(client);
     if (it != clients.end()) {
-        // TODO: should the other clients in the channel be notified?
         clients.erase(it);
     } else {
-        throw IRCException("Not on that channel", ERR_NOTONCHANNEL);
+        return ERR_NOTONCHANNEL;
     }
+    return 0;
 }
 
 bool Channel::is_client_in_channel(Client* client) const {
@@ -198,28 +191,28 @@ void Channel::send_names_to_client(Client& client) const {
     client.send_numeric_response(RPL_ENDOFNAMES, name, "End of NAMES list");
 }
 
-void Channel::kick_client(Client* target, Client* kicker, const std::string& comment) {
+int Channel::kick_client(Client* target, Client* kicker, const std::string& comment) {
     if (!target) {
-        throw IRCException("No such nick/channel", ERR_NOSUCHNICK);
+        return ERR_NOSUCHNICK;
     }
 
     if (!kicker) {
-        throw std::invalid_argument("kicker is null");
+        return ERR_NOSUCHNICK;  // or could be a different error for invalid kicker
     }
 
     // Check if kicker is in the channel
     if (!is_client_in_channel(kicker)) {
-        throw IRCException("You're not on that channel", ERR_NOTONCHANNEL);
+        return ERR_NOTONCHANNEL;
     }
 
     // Check if kicker has operator privileges
     if (!is_client_operator(kicker)) {
-        throw IRCException("You're not channel operator", ERR_CHANOPRIVSNEEDED);
+        return ERR_CHANOPRIVSNEEDED;
     }
 
     // Check if target is in the channel
     if (!is_client_in_channel(target)) {
-        throw IRCException("They aren't on that channel", ERR_USERNOTINCHANNEL);
+        return ERR_USERNOTINCHANNEL;
     }
 
     // Construct KICK message
@@ -229,5 +222,10 @@ void Channel::kick_client(Client* target, Client* kicker, const std::string& com
     broadcast(kick_msg);
 
     // Remove the target client from the channel
-    leave_client(target);
+    int error_code = leave_client(target);
+    if (error_code != 0) {
+        return error_code;  // Propagate any error from leave_client
+    }
+    
+    return 0;  // Success
 }

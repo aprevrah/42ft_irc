@@ -1,7 +1,6 @@
 #include "ChannelManager.hpp"
 
 #include "Client.hpp"
-#include "IRCException.hpp"
 #include "Numerics.hpp"
 
 ChannelManager::ChannelManager() {}
@@ -21,17 +20,17 @@ bool ChannelManager::channel_exists(const std::string& name) {
     return find_channel_by_name(name) != NULL;
 }
 
-void ChannelManager::join_channel(Client* client, const std::string& channel_name, const std::string& key) {
+int ChannelManager::join_channel(Client& client, const std::string& channel_name, const std::string& key) {
     if (!is_valid_channel_name(channel_name)) {
-        throw IRCException("Bad Channel Mask", ERR_BADCHANMASK);
+        return ERR_BADCHANMASK;
     }
     Channel* channel = find_channel_by_name(channel_name);
     if (channel) {
         // Check if channel has a key and key is required
         if (channel->has_key() && channel->get_key() != key) {
-            throw IRCException("Channel key required", ERR_BADCHANNELKEY);
+            return ERR_BADCHANNELKEY;
         }
-        return channel->join_client(client);
+        return channel->join_client(&client);
     } else {
         Channel new_channel(channel_name);
         // Set the key if provided during channel creation
@@ -39,21 +38,24 @@ void ChannelManager::join_channel(Client* client, const std::string& channel_nam
             new_channel.set_key(key);
         }
         channels.push_back(new_channel);
-        return channels.back().join_client(client, true);  // first user op
+        return channels.back().join_client(&client, true);  // first user op
     }
 }
 
-void ChannelManager::leave_channel(Client* client, const std::string& channel_name) {
+int ChannelManager::leave_channel(Client& client, const std::string& channel_name) {
     for (size_t i = 0; i < channels.size(); i++) {
         if (channels[i].get_name() == channel_name) {
-            channels[i].leave_client(client);
+            int error_code = channels[i].leave_client(&client);
+            if (error_code != 0) {
+                return error_code;  // Propagate error from Channel::leave_client
+            }
             if (channels[i].get_clients().empty()) {
                 channels.erase(channels.begin() + i);
             }
-            return;
+            return 0;
         }
     }
-    throw IRCException("Not such chan", ERR_NOSUCHCHANNEL);
+    return ERR_NOSUCHCHANNEL;
 }
 
 void ChannelManager::broadcast_shared_channels(Client& client, const std::string& msg) {

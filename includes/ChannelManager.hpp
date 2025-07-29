@@ -16,8 +16,8 @@ class ChannelManager {
     Channel* find_channel_by_name(const std::string& name);
     ChannelManager();
     ~ChannelManager();
-    void join_channel(Client* client, const std::string& channel_name, const std::string& key = "");
-    void leave_channel(Client* client, const std::string& channel_name);
+    int join_channel(Client& client, const std::string& channel_name, const std::string& key = "");
+    int leave_channel(Client& client, const std::string& channel_name);
     bool channel_exists(const std::string& name);
     bool is_valid_channel_name(const std::string& name);
 
