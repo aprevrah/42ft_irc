@@ -30,6 +30,7 @@ class Server {
     int               epoll_fd;
     const int         port;
     const std::string password;
+    static int        last_signal;
     // the key is the filediscriptor on which the client is connected
     std::map<int, Client> clients;
 
