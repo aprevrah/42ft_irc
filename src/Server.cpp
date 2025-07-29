@@ -85,10 +85,15 @@ void Server::handle_received_data(int client_fd) {
 }
 
 void Server::start() {
-    // Register signal handlers
-    signal(SIGINT, Server::signal_handler);
+    struct sigaction sa;
+    sa.sa_handler = Server::signal_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
+
     run();
-    log_msg(INFO, "shutting down");
+    log_msg(INFO, "Shutting down");
     disconnect_all_clients();
     close(server_socket_fd);
     close(epoll_fd);
@@ -119,7 +124,7 @@ void Server::run() {
     while (true) {
         log_msg(DEBUG, "epoll waiting");
         int num_events = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-        if (last_signal == SIGINT) {
+        if (last_signal == SIGINT || last_signal == SIGQUIT) {
             break;
         }
         if (num_events == -1 && errno != EINTR) {
