@@ -2,10 +2,12 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <signal.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -31,8 +33,10 @@ class Server {
     // the key is the filediscriptor on which the client is connected
     std::map<int, Client> clients;
 
-    void handle_new_connection();
-    void handle_received_data(int fd);
+    void        handle_new_connection();
+    void        handle_received_data(int fd);
+    void        run();
+    static void signal_handler(int signal);
 
    public:
     ChannelManager chan_man;
@@ -40,9 +44,10 @@ class Server {
     Server(const Server& other);
     Server& operator=(const Server& other);
     ~Server();
-    void run();
+    void start();
     bool is_correct_password(std::string password);
     void disconnect_client(int client_fd, std::string reason);
+    void disconnect_all_clients();
 
     bool    is_nick_available(const std::string nick);
     Client* get_client_by_nick(const std::string nick);
