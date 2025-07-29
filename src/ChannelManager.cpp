@@ -44,14 +44,16 @@ void ChannelManager::join_channel(Client* client, const std::string& channel_nam
 }
 
 void ChannelManager::leave_channel(Client* client, const std::string& channel_name) {
-    Channel* channel = find_channel_by_name(channel_name);
-
-    if (channel) {
-        channel->leave_client(client);
-        // Optionally remove empty channels here
-    } else {
-        throw IRCException("Not such chan", ERR_NOSUCHCHANNEL);
+    for (size_t i = 0; i < channels.size(); i++) {
+        if (channels[i].get_name() == channel_name) {
+            channels[i].leave_client(client);
+            if (channels[i].get_clients().empty()) {
+                channels.erase(channels.begin() + i);
+            }
+            return;
+        }
     }
+    throw IRCException("Not such chan", ERR_NOSUCHCHANNEL);
 }
 
 void ChannelManager::broadcast_shared_channels(Client& client, const std::string& msg) {
