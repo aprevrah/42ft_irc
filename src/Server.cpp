@@ -3,6 +3,9 @@
 #include <cerrno>
 #include <iostream>
 
+// Definition of static member variable
+int Server::last_signal = 0;
+
 Server::Server(const int port, const std::string password) : port(port), password(password) {}
 
 Server::Server(const Server& other) : port(other.port), password(other.password) {}
@@ -15,9 +18,7 @@ Server& Server::operator=(const Server& other) {
 Server::~Server() {}
 
 void Server::signal_handler(int signal) {
-    if (signal == SIGINT) {
-        log_msg(INFO, "SIGINT received - interrupt signal caught");
-    }
+    last_signal = signal;
 }
 
 bool Server::is_correct_password(std::string input) {
@@ -89,6 +90,8 @@ void Server::start() {
     run();
     log_msg(INFO, "shutting down");
     disconnect_all_clients();
+    close(server_socket_fd);
+    close(epoll_fd);
 }
 
 void Server::run() {
@@ -116,12 +119,13 @@ void Server::run() {
     while (true) {
         log_msg(DEBUG, "epoll waiting");
         int num_events = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-        if (num_events == -1) {
-            perror("epoll");
-            log_msg(ERROR, "epoll failed");
+        if (last_signal == SIGINT) {
             break;
         }
-        log_msg(DEBUG, "processing epoll events");
+        if (num_events == -1 && errno != EINTR) {
+            log_msg(ERROR, std::string("epoll failed: ") + strerror(errno));
+            break;
+        }
         for (int i = 0; i < num_events; i++) {
             // new connection request on server socket
             if (events[i].data.fd == server_socket_fd) {
