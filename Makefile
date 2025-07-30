@@ -22,25 +22,39 @@ src/commands/cmd_kick.cpp
 
 SRC_DIR = src
 OBJ_DIR = obj
-CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -I./includes -g -std=c++98  #TODO: remove -g
+CXX = clang
+CXXFLAGS = -Wall -Wextra -Werror -I./includes -g -std=c++98 #TODO: remove -g
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+
+# AFL++ fuzzing targets
+AFL_CXX = afl-clang++
+AFL_CXXFLAGS = -Wall -Wextra -Werror -I./includes -g -std=c++98
+AFL_NAME = ircserv_fuzz
+AFL_OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/afl_%.o)
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 
+# AFL++ fuzzing build target
+afl: $(AFL_OBJS)
+	$(AFL_CXX) $(AFL_CXXFLAGS) $(AFL_OBJS) -o $(AFL_NAME)
+
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/afl_%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(dir $@)
+	$(AFL_CXX) $(AFL_CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(OBJ_DIR)
 
 fclean: clean
-	rm -f $(NAME)
+	rm -f $(NAME) $(AFL_NAME)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re afl

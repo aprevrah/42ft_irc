@@ -1,0 +1,5 @@
+JOIN #channel
+MODE #channel +o user
+KICK #channel baduser :You're out
+TOPIC #channel :New topic here
+INVITE gooduser #channel

@@ -1,0 +1,7 @@
+PASS wrongpass
+NICK user1
+USER user1 0 * :User One
+JOIN #test
+PRIVMSG #test :Hello world
+PART #test
+QUIT :Goodbye
