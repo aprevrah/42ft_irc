@@ -1,29 +1,33 @@
 #include "Command.hpp"
-
 bool is_valid_nickname(const std::string& nick) {
     // RFC 2812: Nickname must not be empty and max 9 characters
     if (nick.empty() || nick.length() > 9) {
         return false;
     }
     
-    // RFC 2812: First character must be letter or special character
-    // special = %x5B-60 / %x7B-7D (i.e., "[", "]", "\", "`", "_", "^", "{", "|", "}")
-    char first = nick[0];
-    if (!std::isalpha(first) && first != '[' && first != ']' && first != '\\' && 
-        first != '`' && first != '_' && first != '^' && first != '{' && 
-        first != '|' && first != '}') {
-        return false;
-    }
+    const std::string forbidden = " ,:\t\r\n";
+    const std::string special = "[]\\`_^{|}";
     
-    // RFC 2812: Subsequent characters can be letters, digits, or special characters, or "-"
-    for (size_t i = 1; i < nick.length(); i++) {
+    for (size_t i = 0; i < nick.length(); i++) {
         char c = nick[i];
-        if (!std::isalnum(c) && c != '[' && c != ']' && c != '\\' && 
-            c != '`' && c != '_' && c != '^' && c != '{' && c != '|' && c != '}' && c != '-') {
+        
+        // Check for forbidden characters
+        if (forbidden.find(c) != std::string::npos) {
             return false;
         }
+        
+        if (i == 0) {
+            // First character: letter or special character
+            if (!std::isalpha(c) && special.find(c) == std::string::npos) {
+                return false;
+            }
+        } else {
+            // Subsequent characters: letters, digits, special characters, or "-"
+            if (!std::isalnum(c) && special.find(c) == std::string::npos && c != '-') {
+                return false;
+            }
+        }
     }
-    
     return true;
 }
 
