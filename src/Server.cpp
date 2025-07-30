@@ -6,9 +6,17 @@
 // Definition of static member variable
 int Server::last_signal = 0;
 
-Server::Server(const int port, const std::string password) : port(port), password(password) {}
+Server::Server(const int port, const std::string password)
+    : server_socket_fd(-1), epoll_fd(-1), port(port), password(password) {}
 
-Server::~Server() {}
+Server::~Server() {
+    if (server_socket_fd > 0) {
+        close(server_socket_fd);
+    }
+    if (epoll_fd > 0) {
+        close(epoll_fd);
+    }
+}
 
 void Server::signal_handler(int signal) {
     last_signal = signal;
@@ -83,8 +91,6 @@ void Server::start() {
     run();
     log_msg(INFO, "Shutting down");
     disconnect_all_clients();
-    close(server_socket_fd);
-    close(epoll_fd);
 }
 
 void Server::init() {
