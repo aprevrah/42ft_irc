@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 
-#define LOG_LEVEL DEBUG
+#define LOG_LEVEL INFO
 
 typedef enum command_status {
     CMD_SUCCESS,

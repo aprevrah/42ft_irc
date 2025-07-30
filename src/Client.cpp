@@ -43,7 +43,7 @@ t_command_status Client::add_to_buffer(std::string new_bytes) {
     while ((crlf_pos = message_buffer.find("\r\n")) != std::string::npos) {
         // Extract complete message (without CRLF)
         std::string complete_message = message_buffer.substr(0, crlf_pos);
-        log_msg(INFO, "Message received: " + complete_message);
+        log_msg(INFO, "\033[96mclient " + to_string(fd) + " ➤ '" + complete_message + "'\033[0m");
 
         try {
             Command cmd(complete_message, *this);
@@ -63,8 +63,9 @@ bool Client::is_registered() {
 }
 
 bool Client::try_register() {
-    if (registered)
+    if (registered) {
         return false;
+    }
     if (nickname.empty() || username.empty()) {
         return false;
     }
@@ -94,6 +95,7 @@ void Client::set_nickname(const std::string& nickname) {
 
 void Client::send_response(const std::string& response) const {
     std::string formatted_response = response;
+    log_msg(INFO, "\033[92mclient " + to_string(fd) + " ⮜ '" + response + "'\033[0m");
     formatted_response += "\r\n";
     write(this->fd, formatted_response.c_str(), formatted_response.length());
 }
