@@ -37,13 +37,12 @@ class Server {
     void        handle_new_connection();
     void        handle_received_data(int fd);
     void        run();
+    void        init();
     static void signal_handler(int signal);
 
    public:
     ChannelManager chan_man;
     Server(const int port, const std::string password);
-    Server(const Server& other);
-    Server& operator=(const Server& other);
     ~Server();
     void start();
     bool is_correct_password(std::string password);

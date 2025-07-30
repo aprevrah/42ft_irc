@@ -8,13 +8,6 @@ int Server::last_signal = 0;
 
 Server::Server(const int port, const std::string password) : port(port), password(password) {}
 
-Server::Server(const Server& other) : port(other.port), password(other.password) {}
-
-Server& Server::operator=(const Server& other) {
-    (void)other;
-    return *this;
-}
-
 Server::~Server() {}
 
 void Server::signal_handler(int signal) {
@@ -27,8 +20,6 @@ bool Server::is_correct_password(std::string input) {
 
 void Server::disconnect_client(int client_fd, std::string reason) {
     chan_man.quit_all_channels(clients[client_fd], reason);
-    // I couldn't use the send_numeric_response() here, because ERROR is not an int
-    // TODO: maybe we should generalize send_numeric_response() and accept a string as cmd
     clients[client_fd].send_response("ERROR :" + reason);
     clients.erase(client_fd);
     epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
@@ -57,6 +48,7 @@ void Server::handle_new_connection() {
     clients[client_fd] = Client(client_fd, this);
     log_msg(INFO, "connection accepted: " + to_string(client_fd));
 }
+
 void Server::handle_received_data(int client_fd) {
     char    read_buffer[32];
     ssize_t bytes_read = 1;
@@ -68,6 +60,7 @@ void Server::handle_received_data(int client_fd) {
             // still connected. So no error message in this case.
             if (bytes_read == -1 && errno != EAGAIN && errno != EWOULDBLOCK) {
                 perror("read");
+                throw std::runtime_error("read failed");
             }
             // if read returns 0, it means that the client has disconnected
             if (bytes_read == 0) {
@@ -85,13 +78,8 @@ void Server::handle_received_data(int client_fd) {
 }
 
 void Server::start() {
-    struct sigaction sa;
-    sa.sa_handler = Server::signal_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART;
-    sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGQUIT, &sa, NULL);
-
+    init();
+    log_msg(INFO, "Everything initialized. Listening on port " + to_string(port) + ".");
     run();
     log_msg(INFO, "Shutting down");
     disconnect_all_clients();
@@ -99,7 +87,14 @@ void Server::start() {
     close(epoll_fd);
 }
 
-void Server::run() {
+void Server::init() {
+    struct sigaction sa;
+    sa.sa_handler = Server::signal_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
+
     // TODO: check all return values from system calls
     server_socket_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
     if (server_socket_fd == -1) {
@@ -118,28 +113,37 @@ void Server::run() {
     event.events = EPOLLIN;
     event.data.fd = server_socket_fd;
     epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_socket_fd, &event);
-    struct epoll_event events[MAX_EVENTS];
-    log_msg(INFO, "Everything initialized. Listening on port " + to_string(port) + ".");
+}
 
+void Server::run() {
+    struct epoll_event events[MAX_EVENTS];
     while (true) {
-        log_msg(DEBUG, "epoll waiting");
-        int num_events = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-        if (last_signal == SIGINT || last_signal == SIGQUIT) {
-            break;
-        }
-        if (num_events == -1 && errno != EINTR) {
-            log_msg(ERROR, std::string("epoll failed: ") + strerror(errno));
-            break;
-        }
-        for (int i = 0; i < num_events; i++) {
-            // new connection request on server socket
-            if (events[i].data.fd == server_socket_fd) {
-                handle_new_connection();
+        try {
+            log_msg(DEBUG, "epoll waiting");
+            int num_events = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+            if (last_signal == SIGINT || last_signal == SIGQUIT) {
+                break;
             }
-            // data from existing connection
-            else {
-                handle_received_data(events[i].data.fd);
+            if (num_events == -1 && errno != EINTR) {
+                log_msg(ERROR, std::string("epoll failed: ") + strerror(errno));
+                break;
             }
+            for (int i = 0; i < num_events; i++) {
+                // new connection request on server socket
+                if (events[i].data.fd == server_socket_fd) {
+                    handle_new_connection();
+                }
+                // data from existing connection
+                else {
+                    handle_received_data(events[i].data.fd);
+                }
+            }
+        } catch (std::bad_alloc& e) {
+            log_msg(ERROR, e.what());
+            log_msg(ERROR, "Skipping received data because of failed allocation.");
+        } catch (std::exception& e) {
+            log_msg(ERROR, e.what());
+            log_msg(ERROR, "Skipping received data because of an exception.");
         }
     }
 }
