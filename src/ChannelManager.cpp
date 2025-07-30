@@ -90,7 +90,7 @@ void ChannelManager::quit_all_channels(Client& client, std::string reason) {
     // Remove client from all channels
     for (size_t i = 0; i < channels.size(); i++) {
         if (channels[i].is_client_in_channel(&client)) {
-            channels[i].leave_client(&client);
+            leave_channel(client, channels[i].get_name());
         }
     }
 }
