@@ -34,6 +34,7 @@ class Command {
     t_command_status cmd_kick(Server* server);
 
     int join_chan(Server* server, const std::string& chan_name, const std::string& key);
+    int part_chan(Server* server, const std::string& chan_name, const std::string& reason);
 
     void send_channel_modes(Channel* channel);
     void process_modes(Server* server, Channel* channel, const std::string& modes,
