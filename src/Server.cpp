@@ -73,10 +73,12 @@ void Server::handle_received_data(int client_fd) {
         if (bytes_read <= 0) {
             // EAGAIN or EWOULDBLOCK are expected when there is currently nothing left to read, but the connection is
             // still connected. So no error message in this case.
+            /*
             if (bytes_read == -1 && errno != EAGAIN && errno != EWOULDBLOCK) {
                 perror("read");
                 throw std::runtime_error("read failed");
             }
+            */
             // if read returns 0, it means that the client has disconnected
             if (bytes_read == 0) {
                 disconnect_client(client_fd, "client closed the connection");

@@ -1,7 +1,5 @@
 #include "Client.hpp"
 
-#include <string.h>
-
 #include <cstring>
 #include <iostream>
 
