@@ -92,6 +92,7 @@ t_command_status Command::execute(Server* server) {
         log_msg(DEBUG, "Command found: " + this->command);
         return (this->*cmd_functions[this->command])(server);
     } else {
+        log_msg(WARNING, "Command not found: " + this->command);
         return CMD_FAILURE;
     }
 }

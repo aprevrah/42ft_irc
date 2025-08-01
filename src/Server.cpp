@@ -111,7 +111,6 @@ void Server::init() {
         throw std::runtime_error("sigaction failed");
     }
 
-    // TODO: check all return values from system calls
     server_socket_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
     if (server_socket_fd == -1) {
         throw std::runtime_error("socket failed");
@@ -143,16 +142,16 @@ void Server::init() {
 void Server::run() {
     struct epoll_event events[MAX_EVENTS];
     while (true) {
+        log_msg(DEBUG, "epoll waiting");
+        int num_events = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+        if (last_signal == SIGINT || last_signal == SIGQUIT) {
+            break;
+        }
+        if (num_events == -1 && errno != EINTR) {
+            log_msg(ERROR, std::string("epoll failed: ") + strerror(errno));
+            break;
+        }
         try {
-            log_msg(DEBUG, "epoll waiting");
-            int num_events = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-            if (last_signal == SIGINT || last_signal == SIGQUIT) {
-                break;
-            }
-            if (num_events == -1 && errno != EINTR) {
-                log_msg(ERROR, std::string("epoll failed: ") + strerror(errno));
-                break;
-            }
             for (int i = 0; i < num_events; i++) {
                 // new connection request on server socket
                 if (events[i].data.fd == server_socket_fd) {

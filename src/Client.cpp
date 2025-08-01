@@ -100,7 +100,6 @@ void Client::send_response(const std::string& response) const {
     write(this->fd, formatted_response.c_str(), formatted_response.length());
 }
 
-// TODO: accept params ase multiple strings: maybe with array, vector or vargs
 void Client::send_numeric_response(const unsigned int numeric, std::string params, const std::string& message) const {
     std::string response = to_string(numeric);
     // make sure the numeric has 3 digits
