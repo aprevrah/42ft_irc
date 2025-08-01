@@ -88,6 +88,11 @@ t_command_status Command::execute(Server* server) {
     cmd_functions["TOPIC"] = &Command::cmd_topic;
     cmd_functions["KICK"] = &Command::cmd_kick;
 
+    if (!client.is_registered() && command != "CAP" && command != "PASS" && command != "NICK" && command != "USER" &&
+        command != "PING" && command != "QUIT") {
+        client.send_numeric_response(ERR_NOTREGISTERED, command, "You have not registered");
+        return CMD_FAILURE;
+    }
     if (cmd_functions.find(this->command) != cmd_functions.end()) {
         log_msg(DEBUG, "Command found: " + this->command);
         return (this->*cmd_functions.at(this->command))(server);
