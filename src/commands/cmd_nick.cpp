@@ -9,7 +9,7 @@ bool is_valid_nickname(const std::string& nick) {
     const std::string special = "[]\\`_^{|}";
     
     for (size_t i = 0; i < nick.length(); i++) {
-        char c = nick[i];
+        char c = nick.at(i);
         
         // Check for forbidden characters
         if (forbidden.find(c) != std::string::npos) {

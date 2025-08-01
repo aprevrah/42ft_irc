@@ -6,14 +6,14 @@ t_command_status Command::cmd_part(Server* server) {
         return CMD_FAILURE;
     }
     
-    std::vector<std::string> channels = split_string(parameters[0], ',');
+    std::vector<std::string> channels = split_string(parameters.at(0), ',');
     std::string reason = "";
     if (parameters.size() > 1) {
-        reason = parameters[1];
+        reason = parameters.at(1);
     }
 
     for (size_t i = 0; i < channels.size(); i++) {
-        part_chan(server, channels[i], reason);
+        part_chan(server, channels.at(i), reason);
     }
     return CMD_SUCCESS;
 }

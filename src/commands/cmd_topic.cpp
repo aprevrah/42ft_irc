@@ -7,7 +7,7 @@ t_command_status Command::cmd_topic(Server* server) {
         return CMD_SUCCESS;
     }
 
-    std::string channel_name = parameters[0];
+    std::string channel_name = parameters.at(0);
     Channel* channel = server->chan_man.find_channel_by_name(channel_name);
 
     // Check if channel exists
@@ -34,7 +34,7 @@ t_command_status Command::cmd_topic(Server* server) {
     }
 
     // Setting a new topic
-    std::string new_topic = parameters[1];
+    std::string new_topic = parameters.at(1);
 
     // Check if channel has topic restriction mode (+t) and user has privileges
     if (channel->is_topic_restricted() && !channel->is_client_operator(&client)) {

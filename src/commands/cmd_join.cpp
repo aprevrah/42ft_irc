@@ -5,30 +5,30 @@ t_command_status Command::cmd_join(Server* server) {
         client.send_numeric_response(ERR_NEEDMOREPARAMS, "JOIN", "Not enough parameters");
         return CMD_FAILURE;
     }
-    if (parameters[0].empty()) {
+    if (parameters.at(0).empty()) {
         client.send_numeric_response(ERR_NEEDMOREPARAMS, "JOIN", "Not enough parameters");
         return CMD_FAILURE;
     }
     
     // Handle special case: JOIN 0 (part all channels)
-    if (parameters[0] == "0") {
+    if (parameters.at(0) == "0") {
         part_all_channels(server, "Leaving");
         return CMD_SUCCESS;
     }
     
-    std::vector<std::string> channels = split_string(parameters[0], ',');
+    std::vector<std::string> channels = split_string(parameters.at(0), ',');
     std::vector<std::string> keys;
     
     if (parameters.size() > 1) {
-        keys = split_string(parameters[1], ',');
+        keys = split_string(parameters.at(1), ',');
     }
 
     for (size_t i = 0; i < channels.size(); i++) {
         std::string key = "";
         if (i < keys.size())
-            key = keys[i];
+            key = keys.at(i);
         
-        join_chan(server, channels[i], key);
+        join_chan(server, channels.at(i), key);
     }
 
     return CMD_SUCCESS;
@@ -39,7 +39,7 @@ int Command::part_all_channels(Server* server, const std::string& reason) {
     
     // Use part_chan for each channel to ensure proper PART messages
     for (size_t i = 0; i < channel_names.size(); ++i) {
-        part_chan(server, channel_names[i], reason);
+        part_chan(server, channel_names.at(i), reason);
     }
     
     return 0;

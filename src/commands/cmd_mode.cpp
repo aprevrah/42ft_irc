@@ -6,10 +6,10 @@ t_command_status Command::cmd_mode(Server* server) {
         return CMD_FAILURE;
     }
 
-    std::string& target = parameters[0];
+    std::string& target = parameters.at(0);
 
-    // Only handle channel modes (starting with #)
-    if (target[0] != '#') {
+    // Only handle channel modes (starting with # or &)
+    if (target.at(0) != '#' && target.at(0) != '&') {
         // For user modes, just ignore (basic implementation)
         return CMD_FAILURE;
     }
@@ -41,12 +41,12 @@ t_command_status Command::cmd_mode(Server* server) {
     }
 
     // MODE #channel +/-modes [parameters]
-    std::string&             modes = parameters[1];
+    std::string&             modes = parameters.at(1);
     std::vector<std::string> mode_params;
 
     // Collect mode parameters
     for (size_t i = 2; i < parameters.size(); i++) {
-        mode_params.push_back(parameters[i]);
+        mode_params.push_back(parameters.at(i));
     }
 
     process_modes(server, channel, modes, mode_params);
@@ -86,7 +86,7 @@ void Command::process_modes(Server* server, Channel* channel, const std::string&
     std::string change_params = "";
 
     for (size_t i = 0; i < modes.length(); i++) {
-        char mode = modes[i];
+        char mode = modes.at(i);
 
         if (mode == '+') {
             adding = true;
@@ -116,12 +116,12 @@ void Command::process_modes(Server* server, Channel* channel, const std::string&
             case 'k':  // Channel key
                 if (adding) {
                     if (param_index < params.size()) {
-                        channel->set_key(params[param_index]);
+                        channel->set_key(params.at(param_index));
                         changes += "+k";
                         if (!change_params.empty()) {
                             change_params += " ";
                         }
-                        change_params += params[param_index];
+                        change_params += params.at(param_index);
                         param_index++;
                     }
                 } else {
@@ -135,14 +135,14 @@ void Command::process_modes(Server* server, Channel* channel, const std::string&
             case 'l':  // User limit
                 if (adding) {
                     if (param_index < params.size()) {
-                        int limit = atoi(params[param_index].c_str());
+                        int limit = atoi(params.at(param_index).c_str());
                         if (limit > 0) {
                             channel->set_user_limit(limit);
                             changes += "+l";
                             if (!change_params.empty()) {
                                 change_params += " ";
                             }
-                            change_params += params[param_index];
+                            change_params += params.at(param_index);
                         }
                         param_index++;
                     }
@@ -156,7 +156,7 @@ void Command::process_modes(Server* server, Channel* channel, const std::string&
 
             case 'o':  // Operator
                 if (param_index < params.size()) {
-                    Client* target = server->get_client_by_nick(params[param_index]);
+                    Client* target = server->get_client_by_nick(params.at(param_index));
                     if (target && channel->is_client_in_channel(target)) {
                         channel->set_client_operator(target, adding);
                         changes += (adding ? "+" : "-");
@@ -164,10 +164,10 @@ void Command::process_modes(Server* server, Channel* channel, const std::string&
                         if (!change_params.empty()) {
                             change_params += " ";
                         }
-                        change_params += params[param_index];
+                        change_params += params.at(param_index);
                     } else {
                         client.send_numeric_response(ERR_USERNOTINCHANNEL,
-                                                     params[param_index] + " " + channel->get_name(),
+                                                     params.at(param_index) + " " + channel->get_name(),
                                                      "They aren't on that channel");
                     }
                     param_index++;

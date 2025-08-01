@@ -27,8 +27,8 @@ bool Server::is_correct_password(std::string input) {
 }
 
 void Server::disconnect_client(int client_fd, std::string reason) {
-    chan_man.quit_all_channels(clients[client_fd], reason);
-    clients[client_fd].send_response("ERROR :" + reason);
+    chan_man.quit_all_channels(clients.at(client_fd), reason);
+    clients.at(client_fd).send_response("ERROR :" + reason);
     clients.erase(client_fd);
     if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL) == -1) {
         perror("epoll_ctl failed");

@@ -6,8 +6,8 @@ t_command_status Command::cmd_invite(Server* server) {
         return CMD_FAILURE;
     }
 
-    std::string& target_nick = parameters[0];
-    std::string& channel_name = parameters[1];
+    std::string& target_nick = parameters.at(0);
+    std::string& channel_name = parameters.at(1);
 
     // Check if channel exists
     if (!server->chan_man.channel_exists(channel_name)) {

@@ -138,7 +138,7 @@ void Channel::set_user_limit(unsigned int limit) {
 
 void Channel::set_client_operator(Client* client, bool is_op) {
     if (client && is_client_in_channel(client)) {
-        clients[client] = is_op;
+        clients.at(client) = is_op;
     }
 }
 

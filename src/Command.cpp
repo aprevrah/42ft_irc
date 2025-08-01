@@ -65,7 +65,7 @@ std::ostream& operator<<(std::ostream& os, const Command& cmd) {
             if (i > 0) {
                 os << ", ";
             }
-            os << "'" << cmd.parameters[i] << "'";
+            os << "'" << cmd.parameters.at(i) << "'";
         }
     }
     return os;
@@ -90,7 +90,7 @@ t_command_status Command::execute(Server* server) {
 
     if (cmd_functions.find(this->command) != cmd_functions.end()) {
         log_msg(DEBUG, "Command found: " + this->command);
-        return (this->*cmd_functions[this->command])(server);
+        return (this->*cmd_functions.at(this->command))(server);
     } else {
         log_msg(WARNING, "Command not found: " + this->command);
         return CMD_FAILURE;

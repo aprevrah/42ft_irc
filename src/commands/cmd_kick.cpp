@@ -8,13 +8,13 @@ t_command_status Command::cmd_kick(Server* server) {
         return CMD_FAILURE;
     }
 
-    std::string channel_name = parameters[0];
-    std::string users_param = parameters[1];
+    std::string channel_name = parameters.at(0);
+    std::string users_param = parameters.at(1);
     std::string comment = "";
 
     // Extract comment if provided
-    if (parameters.size() > 2 && !parameters[2].empty()) {
-        comment = parameters[2];
+    if (parameters.size() > 2 && !parameters.at(2).empty()) {
+        comment = parameters.at(2);
     } else {
         comment = "Kicked by " + client.get_nickname();
     }
@@ -27,21 +27,7 @@ t_command_status Command::cmd_kick(Server* server) {
     }
 
     // Parse multiple users (comma-separated)
-    std::vector<std::string> target_nicks;
-    std::string              current_nick = "";
-    for (size_t i = 0; i < users_param.length(); ++i) {
-        if (users_param[i] == ',') {
-            if (!current_nick.empty()) {
-                target_nicks.push_back(current_nick);
-                current_nick = "";
-            }
-        } else {
-            current_nick += users_param[i];
-        }
-    }
-    if (!current_nick.empty()) {
-        target_nicks.push_back(current_nick);
-    }
+    std::vector<std::string> target_nicks = split_string(users_param, ',');
 
     // Process each target nick individually
     for (std::vector<std::string>::iterator it = target_nicks.begin(); it != target_nicks.end(); ++it) {

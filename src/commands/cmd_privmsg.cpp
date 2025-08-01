@@ -5,15 +5,15 @@ t_command_status Command::cmd_privmsg(Server* server) {
         client.send_numeric_response(ERR_NEEDMOREPARAMS, "PRIVMSG", "Not enough parameters");
         return CMD_FAILURE;
     }
-    std::vector<std::string> targets = split_string(parameters[0], ',');
-    std::string&             message = parameters[1];
+    std::vector<std::string> targets = split_string(parameters.at(0), ',');
+    std::string&             message = parameters.at(1);
 
     for (size_t i = 0; i < targets.size(); i++) {
-        std::string& target = targets[i];
+        std::string& target = targets.at(i);
         if (target.empty()) {
             continue;
         }
-        if (target[0] == '#' || target[0] == '&') {
+        if (target.at(0) == '#' || target.at(0) == '&') {
             Channel* channel = server->chan_man.find_channel_by_name(target);
             if (!channel) {
                 client.send_numeric_response(ERR_NOSUCHCHANNEL, target, "No such channel");
