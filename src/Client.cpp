@@ -94,7 +94,7 @@ void Client::send_response(const std::string& response) const {
     std::string formatted_response = response;
     log_msg(INFO, "\033[92mclient " + to_string(fd) + " ⮜ '" + response + "'\033[0m");
     formatted_response += "\r\n";
-    write(this->fd, formatted_response.c_str(), formatted_response.length());
+    send(this->fd, formatted_response.c_str(), formatted_response.length(), 0);
 }
 
 void Client::send_numeric_response(const unsigned int numeric, std::string params, const std::string& message) const {
