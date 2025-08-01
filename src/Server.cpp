@@ -122,7 +122,7 @@ void Server::init() {
     server_addr.sin_port = htons(this->port);
 
     if (bind(server_socket_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
-        throw std::runtime_error("bind failed");
+        throw std::runtime_error(std::string("bind failed: ") + std::strerror(errno));
     }
     if (listen(server_socket_fd, 100) == -1) {  // TODO: rethink about 100
         throw std::runtime_error("listen failed");
