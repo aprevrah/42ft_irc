@@ -81,6 +81,18 @@ void ChannelManager::broadcast_shared_channels(Client& client, const std::string
     }
 }
 
+std::vector<std::string> ChannelManager::get_client_channels(Client& client) {
+    std::vector<std::string> channel_names;
+    
+    for (size_t i = 0; i < channels.size(); i++) {
+        if (channels[i].is_client_in_channel(&client)) {
+            channel_names.push_back(channels[i].get_name());
+        }
+    }
+    
+    return channel_names;
+}
+
 void ChannelManager::quit_all_channels(Client& client, std::string reason) {
     std::string quit_msg = client.get_prefix() + " QUIT :" + reason;
     

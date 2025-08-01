@@ -1,6 +1,6 @@
 #include "Command.hpp"
 
-t_command_status Command::cmd_join(Server* server) {  // TODO: join multiple channels
+t_command_status Command::cmd_join(Server* server) {
     if (parameters.size() < 1) {
         client.send_numeric_response(ERR_NEEDMOREPARAMS, "JOIN", "Not enough parameters");
         return CMD_FAILURE;
@@ -8,6 +8,12 @@ t_command_status Command::cmd_join(Server* server) {  // TODO: join multiple cha
     if (parameters[0].empty()) {
         client.send_numeric_response(ERR_NEEDMOREPARAMS, "JOIN", "Not enough parameters");
         return CMD_FAILURE;
+    }
+    
+    // Handle special case: JOIN 0 (part all channels)
+    if (parameters[0] == "0") {
+        part_all_channels(server, "Leaving");
+        return CMD_SUCCESS;
     }
     
     std::vector<std::string> channels = split_string(parameters[0], ',');
@@ -26,6 +32,17 @@ t_command_status Command::cmd_join(Server* server) {  // TODO: join multiple cha
     }
 
     return CMD_SUCCESS;
+}
+
+int Command::part_all_channels(Server* server, const std::string& reason) {
+    std::vector<std::string> channel_names = server->chan_man.get_client_channels(client);
+    
+    // Use part_chan for each channel to ensure proper PART messages
+    for (size_t i = 0; i < channel_names.size(); ++i) {
+        part_chan(server, channel_names[i], reason);
+    }
+    
+    return 0;
 }
 
 int Command::join_chan(Server* server, const std::string& chan_name, const std::string& key) {
