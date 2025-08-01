@@ -112,7 +112,6 @@ void Client::send_numeric_response(const unsigned int numeric, std::string param
 }
 
 void Client::set_username(std::string new_name) {
-    // TODO: validate username
     username = new_name;
 }
 

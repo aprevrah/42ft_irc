@@ -15,7 +15,6 @@ inline std::string to_string(unsigned int value) {
     return oss.str();
 }
 
-// TODO: Call the file utils maybe
 inline std::vector<std::string> split_string(const std::string& str, char delimiter) {
     std::vector<std::string> result;
     std::istringstream       stream(str);

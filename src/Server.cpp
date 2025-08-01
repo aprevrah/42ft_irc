@@ -40,8 +40,6 @@ void Server::disconnect_client(int client_fd, std::string reason) {
 }
 
 void Server::handle_new_connection() {
-    // TODO: test what happens if two new connection come at the same time
-    // (to test this you probaly have to insert a wait into the loop)
     struct sockaddr_in incoming_addr;
     socklen_t          addr_len = sizeof(incoming_addr);
     int                client_fd = accept(server_socket_fd, (struct sockaddr*)&incoming_addr, &addr_len);
@@ -69,7 +67,7 @@ void Server::handle_received_data(int client_fd) {
     ssize_t bytes_read = 1;
     while (bytes_read > 0) {
         memset(read_buffer, 0, sizeof(read_buffer));
-        bytes_read = read(client_fd, read_buffer, sizeof(read_buffer) - 1);
+        bytes_read = recv(client_fd, read_buffer, sizeof(read_buffer) - 1, 0);
         if (bytes_read <= 0) {
             // EAGAIN or EWOULDBLOCK are expected when there is currently nothing left to read, but the connection is
             // still connected. So no error message in this case.
