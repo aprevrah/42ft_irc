@@ -37,7 +37,6 @@ t_command_status Command::cmd_join(Server* server) {
 int Command::part_all_channels(Server* server, const std::string& reason) {
     std::vector<std::string> channel_names = server->chan_man.get_client_channels(client);
     
-    // Use part_chan for each channel to ensure proper PART messages
     for (size_t i = 0; i < channel_names.size(); ++i) {
         part_chan(server, channel_names.at(i), reason);
     }

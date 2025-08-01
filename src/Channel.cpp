@@ -195,33 +195,23 @@ int Channel::kick_client(Client* target, Client* kicker, const std::string& comm
     if (!target) {
         return ERR_NOSUCHNICK;
     }
-
     if (!kicker) {
-        return ERR_NOSUCHNICK;  // or could be a different error for invalid kicker
+        return ERR_NOSUCHNICK;
     }
-
-    // Check if kicker is in the channel
     if (!is_client_in_channel(kicker)) {
         return ERR_NOTONCHANNEL;
     }
-
-    // Check if kicker has operator privileges
     if (!is_client_operator(kicker)) {
         return ERR_CHANOPRIVSNEEDED;
     }
-
-    // Check if target is in the channel
     if (!is_client_in_channel(target)) {
         return ERR_USERNOTINCHANNEL;
     }
 
-    // Construct KICK message
     std::string kick_msg = kicker->get_prefix() + " KICK " + name + " " + target->get_nickname() + " :" + comment;
 
-    // Broadcast the KICK message to all channel members
     broadcast(kick_msg);
 
-    // Remove the target client from the channel
     int error_code = leave_client(target);
     if (error_code != 0) {
         return error_code;  // Propagate any error from leave_client

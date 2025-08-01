@@ -32,7 +32,6 @@ t_command_status Command::cmd_privmsg(Server* server) {
                 client.send_numeric_response(ERR_NOSUCHNICK, target, "No such nick/channel");
                 continue;
             }
-            // Build the private message
             std::string privmsg = client.get_prefix() + " PRIVMSG " + target + " :" + message;
             target_client->send_response(privmsg);
         }

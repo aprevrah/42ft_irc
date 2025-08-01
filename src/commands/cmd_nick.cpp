@@ -11,18 +11,15 @@ bool is_valid_nickname(const std::string& nick) {
     for (size_t i = 0; i < nick.length(); i++) {
         char c = nick.at(i);
         
-        // Check for forbidden characters
         if (forbidden.find(c) != std::string::npos) {
             return false;
         }
         
         if (i == 0) {
-            // First character: letter or special character
             if (!std::isalpha(c) && special.find(c) == std::string::npos) {
                 return false;
             }
         } else {
-            // Subsequent characters: letters, digits, special characters, or "-"
             if (!std::isalnum(c) && special.find(c) == std::string::npos && c != '-') {
                 return false;
             }
@@ -51,7 +48,6 @@ t_command_status Command::cmd_nick(Server* server) {
 
     std::string old_nick = client.get_nickname();
     
-    // If client was already registered, broadcast nick change with old prefix
     if (!old_nick.empty() && client.is_registered()) {
         std::string nick_msg = client.get_prefix() + " NICK " + new_nick;
         
@@ -60,7 +56,6 @@ t_command_status Command::cmd_nick(Server* server) {
     }
     client.set_nickname(new_nick);
     
-    // Try to register if not already registered
     client.try_register();
     
     return CMD_SUCCESS;

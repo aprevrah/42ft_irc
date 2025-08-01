@@ -22,7 +22,6 @@ int Command::part_chan(Server* server, const std::string& chan_name, const std::
     int error_code = server->chan_man.leave_channel(client, chan_name);
     
     if (error_code != 0) {
-        // Handle error cases
         if (error_code == ERR_NOSUCHCHANNEL) {
             client.send_numeric_response(ERR_NOSUCHCHANNEL, chan_name, "No such channel");
         } else if (error_code == ERR_NOTONCHANNEL) {
@@ -31,7 +30,6 @@ int Command::part_chan(Server* server, const std::string& chan_name, const std::
         return 1;
     }
     
-    // Success - send part message
     std::string part_msg = client.get_prefix() + " PART " + chan_name;
     if (!reason.empty()) {
         part_msg += " :" + reason;

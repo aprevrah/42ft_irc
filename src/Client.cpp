@@ -69,7 +69,6 @@ bool Client::try_register() {
     }
     if (!correct_password) {
         send_numeric_response(ERR_PASSWDMISMATCH, std::string(), "Password incorrect");
-        // disconnect ?
         return false;
     }
     registered = true;

@@ -10,11 +10,10 @@ t_command_status Command::cmd_mode(Server* server) {
 
     // Only handle channel modes (starting with # or &)
     if (target.at(0) != '#' && target.at(0) != '&') {
-        // For user modes, just ignore (basic implementation)
+        // ignore user modes
         return CMD_FAILURE;
     }
 
-    // Check if channel exists
     if (!server->chan_man.channel_exists(target)) {
         client.send_numeric_response(ERR_NOSUCHCHANNEL, target, "No such channel");
         return CMD_FAILURE;
@@ -22,29 +21,24 @@ t_command_status Command::cmd_mode(Server* server) {
 
     Channel* channel = server->chan_man.find_channel_by_name(target);
 
-    // Check if client is in channel
     if (!channel->is_client_in_channel(&client)) {
         client.send_numeric_response(ERR_NOTONCHANNEL, target, "You're not on that channel");
         return CMD_FAILURE;
     }
 
-    // MODE #channel (query current modes)
     if (parameters.size() == 1) {
         send_channel_modes(channel);
         return CMD_FAILURE;
     }
 
-    // Check if client is operator
     if (!channel->is_client_operator(&client)) {
         client.send_numeric_response(ERR_CHANOPRIVSNEEDED, target, "You're not channel operator");
         return CMD_FAILURE;
     }
 
-    // MODE #channel +/-modes [parameters]
     std::string&             modes = parameters.at(1);
     std::vector<std::string> mode_params;
 
-    // Collect mode parameters
     for (size_t i = 2; i < parameters.size(); i++) {
         mode_params.push_back(parameters.at(i));
     }
@@ -57,7 +51,6 @@ void Command::send_channel_modes(Channel* channel) {
     std::string mode_string = "+";
     std::string mode_params = "";
 
-    // Build current modes
     if (channel->is_invite_only()) {
         mode_string += "i";
     }
@@ -73,9 +66,8 @@ void Command::send_channel_modes(Channel* channel) {
         mode_params += " " + to_string(channel->get_user_limit());
     }
 
-    // Send response: 324 RPL_CHANNELMODEIS
     std::string response = channel->get_name() + " " + mode_string + mode_params;
-    client.send_numeric_response(324, response, "");
+    client.send_numeric_response(RPL_CHANNELMODEIS, response, "");
 }
 
 void Command::process_modes(Server* server, Channel* channel, const std::string& modes,
@@ -175,7 +167,7 @@ void Command::process_modes(Server* server, Channel* channel, const std::string&
                 break;
 
             default:
-                // Unknown mode - ignore for simplicity
+                // ignore unknown mode
                 break;
         }
     }
