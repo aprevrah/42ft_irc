@@ -73,7 +73,7 @@ bool Client::try_register() {
     }
     registered = true;
     send_numeric_response(001, "", "Welcome to the Internet Relay Network " + nickname + "!");
-    send_numeric_response(002, "", "Your host is our.server42.at.");
+    send_numeric_response(002, "", "Your host is " SERVER_NAME ".");
     send_numeric_response(003, "", "This server was created today.");
     return true;
 }

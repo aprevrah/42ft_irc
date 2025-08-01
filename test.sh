@@ -83,13 +83,13 @@ echo "IRC server started with PID: $IRCSERV_PID"
 
 # Run the tests
 WELCOME=$'001 tester :Welcome to the Internet Relay Network tester!\r
-002 tester :Your host is our.server42.at.\r
+002 tester :Your host is AwsomeServer.\r
 003 tester :This server was created today.\r'
 
 test $'PASS\r\nQUIT\r\n' $'461 * PASS :Not enough parameters\r\nERROR :quit\r'
 test $'PASS password\r\nNICK tester\r\nUSER username 2 3 4\r\nQUIT\r\n' "$WELCOME"$'\nERROR :quit\r'
 test $'PASS wrong_password\r\nNICK tester565\r\nUSER username 2 3 4\r\nQUIT\r\n' $'464 tester565 :Password incorrect\r\nERROR :quit\r'
-test $'PING :hello\r\nQUIT\r\n' $'PONG AmazingServer :hello\r\nERROR :quit\r'
+test $'PING :hello\r\nQUIT\r\n' $'PONG AwsomeServer :hello\r\nERROR :quit\r'
 test $'CAP LS 302\r\nQUIT\r\n' $'CAP * LS :\r\nERROR :quit\r'
 
 # Check if the server is still running after tests

@@ -18,7 +18,7 @@
 #include "Client.hpp"
 #include "ft_irc.hpp"
 
-#define SERVER_NAME "AmazingServer"
+#define SERVER_NAME "AwsomeServer"
 #define MAX_EVENTS  20
 
 class Client;
