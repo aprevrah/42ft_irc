@@ -20,8 +20,8 @@ void print_timestamp() {
 
 // printing on stderr because stdout could be redirected
 void log_msg(t_log_level level, std::string msg) {
-    print_timestamp();
     if (level <= LOG_LEVEL) {
+        print_timestamp();
         if (level == ERROR) {
             std::cerr << "\033[41;37m ERORR \033[0m ";
         } else if (level == WARNING) {
