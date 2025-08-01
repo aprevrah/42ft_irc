@@ -30,8 +30,12 @@ void Server::disconnect_client(int client_fd, std::string reason) {
     chan_man.quit_all_channels(clients[client_fd], reason);
     clients[client_fd].send_response("ERROR :" + reason);
     clients.erase(client_fd);
-    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
-    close(client_fd);
+    if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL) == -1) {
+        perror("epoll_ctl failed");
+    }
+    if (close(client_fd) == -1) {
+        perror("close failed");
+    }
     log_msg(INFO, "Client " + to_string(client_fd) + " disconnected");
 }
 
@@ -43,15 +47,18 @@ void Server::handle_new_connection() {
     int                client_fd = accept(server_socket_fd, (struct sockaddr*)&incoming_addr, &addr_len);
     if (client_fd == -1) {
         perror("accept failed");
-        return;
+        throw std::runtime_error("accept failed");
     }
-    fcntl(client_fd, F_SETFL, O_NONBLOCK);
+    if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1) {
+        close(client_fd);
+        throw std::runtime_error("fcntl failed");
+    }
     struct epoll_event event;
     event.events = EPOLLIN | EPOLLET;
     event.data.fd = client_fd;
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &event) == -1) {
-        perror("epoll_ctl failed");
-        exit(1);
+        close(client_fd);
+        throw std::runtime_error("epoll_ctl failed");
     }
     clients[client_fd] = Client(client_fd, this);
     log_msg(INFO, "connection accepted: " + to_string(client_fd));
@@ -96,15 +103,18 @@ void Server::start() {
 void Server::init() {
     struct sigaction sa;
     sa.sa_handler = Server::signal_handler;
-    sigemptyset(&sa.sa_mask);
+    if (sigemptyset(&sa.sa_mask) == -1) {
+        throw std::runtime_error("sigemptyset failed");
+    }
     sa.sa_flags = SA_RESTART;
-    sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGQUIT, &sa, NULL);
+    if (sigaction(SIGINT, &sa, NULL) == -1 || sigaction(SIGQUIT, &sa, NULL) == -1) {
+        throw std::runtime_error("sigaction failed");
+    }
 
     // TODO: check all return values from system calls
     server_socket_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
     if (server_socket_fd == -1) {
-        exit(1);
+        throw std::runtime_error("socket failed");
     }
 
     struct sockaddr_in server_addr;
@@ -112,13 +122,22 @@ void Server::init() {
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(this->port);
 
-    bind(server_socket_fd, (struct sockaddr*)&server_addr, sizeof(server_addr));
-    listen(server_socket_fd, 100);  // TODO: rethink about 100
+    if (bind(server_socket_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
+        throw std::runtime_error("bind failed");
+    }
+    if (listen(server_socket_fd, 100) == -1) {  // TODO: rethink about 100
+        throw std::runtime_error("listen failed");
+    }
     epoll_fd = epoll_create1(0);
+    if (epoll_fd == -1) {
+        throw std::runtime_error("epoll_create1 failed");
+    }
     struct epoll_event event;
-    event.events = EPOLLIN;
+    event.events = EPOLLIN | EPOLLET;
     event.data.fd = server_socket_fd;
-    epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_socket_fd, &event);
+    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_socket_fd, &event) == -1) {
+        throw std::runtime_error("epoll_ctl failed");
+    }
 }
 
 void Server::run() {
