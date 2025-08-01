@@ -23,7 +23,7 @@ src/commands/cmd_kick.cpp
 SRC_DIR = src
 OBJ_DIR = obj
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -I./includes -g -std=c++98  #TODO: remove -g
+CXXFLAGS = -Wall -Wextra -Werror -I./includes -std=c++98
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 all: $(NAME)

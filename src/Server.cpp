@@ -124,7 +124,7 @@ void Server::init() {
     if (bind(server_socket_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
         throw std::runtime_error(std::string("bind failed: ") + std::strerror(errno));
     }
-    if (listen(server_socket_fd, 100) == -1) {  // TODO: rethink about 100
+    if (listen(server_socket_fd, 20) == -1) {
         throw std::runtime_error("listen failed");
     }
     epoll_fd = epoll_create1(0);
